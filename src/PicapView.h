@@ -37,6 +37,20 @@ protected:
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+
+private:
+	CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);
+
+private:
+	BOOL m_isStarted;
+	BOOL m_isFinished;
+	CPoint m_startPoint;
+	CPoint m_finishPoint;
 };
 
 #ifndef _DEBUG  // debug version in PicapView.cpp

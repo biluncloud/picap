@@ -17,3 +17,5 @@ bin/
 *.suo
 *.user
 */readme.txt
+*.cd
+*Picap.aps

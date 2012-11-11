@@ -5,6 +5,8 @@
 #include "Picap.h"
 
 #include "MainFrm.h"
+#include "PicapDoc.h"
+#include "strings.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -17,6 +19,9 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
+	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
+	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
+	ON_COMMAND(ID_TOOL_OPTION, &CMainFrame::OnToolOption)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -100,3 +105,42 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 
 
+
+void CMainFrame::OnFileOpen()
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
+	if(IDOK == dlg.DoModal())
+	{
+		CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
+		if (!pDoc->OpenImage(dlg.GetFileName()))
+		{
+			MessageBox(OPEN_IMAGE_FAILED_STR);
+			return;
+		}
+	}
+}
+
+void CMainFrame::OnFileSave()
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
+	if(IDOK == dlg.DoModal())
+	{
+		CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
+		if (!pDoc->SaveImage(dlg.GetFileName()))
+		{
+			MessageBox(SAVE_IMAGE_FAILED_STR);
+		}
+	}
+}
+
+void CMainFrame::OnToolOption()
+{
+	// TODO: Add your command handler code here
+	CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
+	if (!pDoc->SetParameters())
+	{
+		MessageBox(SET_PARAM_FAILED_STR);
+	}
+}

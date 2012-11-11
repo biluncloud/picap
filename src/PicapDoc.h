@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <highgui.h>
 
 class CPicapDoc : public CDocument
 {
@@ -16,6 +17,12 @@ public:
 
 // Operations
 public:
+	bool OpenImage(CString &file_path);
+	bool SaveImage(CString &file_path);
+	bool SetParameters();
+	CvvImage &GetImage();
+	const CRect &GetROIRect() const;
+	void SetROIRect(const CRect &rect);
 
 // Overrides
 public:
@@ -35,6 +42,14 @@ protected:
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
+
+// Attributes
+private:
+	bool DestroyData();
+
+private:
+	CvvImage m_image;
+	CRect m_ROIRect;
 };
 
 

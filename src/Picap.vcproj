@@ -67,6 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="cxcore.lib cv.lib ml.lib cvaux.lib highgui.lib cvcam.lib"
 				OutputFile="$(OutDir)\Debug\$(ProjectName).exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -237,6 +238,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\strings.h"
+				>
+			</File>
+			<File
 				RelativePath=".\targetver.h"
 				>
 			</File>
@@ -268,10 +273,18 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\ClassDiagram11.cd"
+			>
+		</File>
+		<File
 			RelativePath=".\ReadMe.txt"
 			>
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="Picap.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
