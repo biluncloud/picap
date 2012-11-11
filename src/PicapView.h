@@ -14,6 +14,7 @@ protected: // create from serialization only
 // Attributes
 public:
 	CPicapDoc* GetDocument() const;
+	BOOL IsImageOpened() const;
 
 // Operations
 public:

@@ -70,14 +70,18 @@ void CPicapView::OnDraw(CDC* pDC)
 	pDoc->GetImage().DrawToHDC(pDC->m_hDC, &rect);
 
 	// Draw the rectangle area
-	if (m_isFinished)
+	if (m_isStarted)
 	{
 		CBrush brush;
 		brush.CreateStockObject(NULL_BRUSH);
+		CPen pen(PS_DASH, 1, RGB(0, 0, 0));
 		
 		CBrush* pOldBrush=pDC->SelectObject(&brush);
-		pDC->Rectangle(pDoc->GetROIRect());
+		CPen* pOldPen = pDC->SelectObject(&pen);
 
+		pDC->Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
+
+		pDC->SelectObject(pOldPen);
 		pDC->SelectObject(pOldBrush);
 	}
 }
@@ -109,33 +113,37 @@ CPicapDoc* CPicapView::GetDocument() const // non-debug version is inline
 void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	if (m_isStarted && !m_isFinished)
+	if (IsImageOpened())
 	{
-		ReleaseCapture();
+		if (m_isStarted && !m_isFinished)
+		{
+			// ReleaseCapture();
 
-		m_isFinished = TRUE;
-		m_finishPoint = point;
+			m_isFinished = TRUE;
+			m_finishPoint = point;
 
-		CPicapDoc* pDoc = GetDocument();
-		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
-		pDoc->SetROIRect(ROIRect);
-		
-		InvalidateRect(&ROIRect);
+			CPicapDoc* pDoc = GetDocument();
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+			pDoc->SetROIRect(ROIRect);
+			
+			InvalidateRect(&ROIRect);
+		}
+		// The first point is already set, this time is the second point
+		else
+		{
+			// SetCapture();
+
+			m_isStarted = TRUE;
+			m_isFinished = FALSE;
+
+			CPicapDoc* pDoc = GetDocument();
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+			InvalidateRect(&ROIRect);
+
+			m_startPoint = point;
+		}
 	}
-	// The first point is already set, this time is the second point
-	else
-	{
-		SetCapture();
 
-		m_isStarted = TRUE;
-		m_isFinished = FALSE;
-
-		CPicapDoc* pDoc = GetDocument();
-		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
-		InvalidateRect(&ROIRect);
-
-		m_startPoint = point;
-	}
 
 	CView::OnLButtonDown(nFlags, point);
 }
@@ -143,6 +151,17 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
+	if (IsImageOpened())
+	{
+		if (m_isStarted && !m_isFinished)
+		{
+			CPicapDoc* pDoc = GetDocument();
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+			InvalidateRect(&ROIRect);
+
+			m_finishPoint = point;
+		}
+	}
 
 	CView::OnMouseMove(nFlags, point);
 }
@@ -150,6 +169,10 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
+	if (IsImageOpened())
+	{
+		return;
+	}
 
 	CView::OnLButtonUp(nFlags, point);
 }
@@ -172,4 +195,21 @@ CRect CPicapView::CalcBoundRect(const CPoint &pt1, const CPoint &pt2)
 	bottomRight.y = (pt1.y >= pt2.y) ? pt1.y : pt2.y;
 
 	return CRect(topLeftPt, bottomRight);
+}
+
+BOOL CPicapView::IsImageOpened() const
+{
+	CPicapDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+	{
+		return FALSE;
+	}
+
+	if (NULL == pDoc->GetImage().GetImage())
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }
