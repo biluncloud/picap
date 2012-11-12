@@ -42,7 +42,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+//	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 private:
 	CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);

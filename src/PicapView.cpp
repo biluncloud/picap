@@ -27,7 +27,7 @@ BEGIN_MESSAGE_MAP(CPicapView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
-	ON_WM_CHAR()
+//	ON_WM_CHAR()
 	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
@@ -76,7 +76,7 @@ void CPicapView::OnDraw(CDC* pDC)
 		pDoc->GetImage().Height() - 1
 	};
 
-	// 
+	// Buffering for rendering
 	CDC dcCompatible;
 	dcCompatible.CreateCompatibleDC(pDC);	
 	CBitmap bitmapCompatible;
@@ -148,8 +148,6 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		if (m_isStarted && !m_isFinished)
 		{
-			// ReleaseCapture();
-
 			m_isFinished = TRUE;
 			m_finishPoint = point;
 
@@ -162,8 +160,6 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 		// The first point is already set, this time is the second point
 		else
 		{
-			// SetCapture();
-
 			m_isStarted = TRUE;
 			m_isFinished = FALSE;
 
@@ -174,7 +170,6 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 			m_startPoint = m_finishPoint = point;
 		}
 	}
-
 
 	CView::OnLButtonDown(nFlags, point);
 }
@@ -208,12 +203,52 @@ void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 	CView::OnLButtonUp(nFlags, point);
 }
 
-void CPicapView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: Add your message handler code here and/or call default
-
-	CView::OnChar(nChar, nRepCnt, nFlags);
-}
+//void CPicapView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+//{
+//	// TODO: Add your message handler code here and/or call default
+//
+//	switch (nChar)
+//	{
+//	case VK_ESCAPE: 
+//        // Process an escape. 
+//        
+//        break; 
+//
+//    case VK_RETURN: 
+//        // Process a carriage return. 
+//         
+//        break; 
+//
+//    case VK_LEFT: 
+//        break; 
+//
+//    case VK_RIGHT: 
+//        break; 
+//
+//    case VK_UP: 
+//        break; 
+//
+//    case VK_DOWN: 
+//        break; 
+//		
+//    case VK_PRIOR: 
+//        break; 
+//
+//    case VK_NEXT: 
+//        break; 
+//
+//    case VK_HOME: 
+//        break; 
+//
+//    case VK_END: 
+//        break; 
+//
+//	default:
+//		break;
+//	}
+// 
+//	CView::OnChar(nChar, nRepCnt, nFlags);
+//}
 
 // Calculate the bound rect of this two point
 CRect CPicapView::CalcBoundRect(const CPoint &pt1, const CPoint &pt2)

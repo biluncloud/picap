@@ -22,6 +22,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_TOOL_OPTION, &CMainFrame::OnToolOption)
+	ON_WM_CHAR()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -128,6 +129,11 @@ void CMainFrame::OnFileSave()
 	if(IDOK == dlg.DoModal())
 	{
 		CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
+		if ((NULL == pDoc) || (NULL == pDoc->GetImage().GetImage()))
+		{
+			MessageBox(SAVE_IMAGE_NOT_READY_STR);
+			return;
+		}
 		if (!pDoc->SaveImage(dlg.GetFileName()))
 		{
 			MessageBox(SAVE_IMAGE_FAILED_STR);
@@ -143,4 +149,50 @@ void CMainFrame::OnToolOption()
 	{
 		MessageBox(SET_PARAM_FAILED_STR);
 	}
+}
+
+void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: Add your message handler code here and/or call default
+	switch (nChar)
+	{
+	case VK_ESCAPE: 
+        // Process an escape. 
+        
+        break; 
+
+    case VK_RETURN: 
+        // Process a carriage return. 
+         
+        break; 
+
+    case VK_LEFT: 
+        break; 
+
+    case VK_RIGHT: 
+        break; 
+
+    case VK_UP: 
+        break; 
+
+    case VK_DOWN: 
+        break; 
+		
+    case VK_PRIOR: 
+        break; 
+
+    case VK_NEXT: 
+        break; 
+
+    case VK_HOME: 
+        break; 
+
+    case VK_END: 
+        break; 
+
+	default:
+		break;
+	}
+
+	CFrameWnd::OnChar(nChar, nRepCnt, nFlags);
 }

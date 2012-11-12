@@ -104,7 +104,20 @@ bool CPicapDoc::OpenImage(CString &file_path)
 
 bool CPicapDoc::SaveImage(CString &file_path)
 {
-	return true;
+	if (NULL == m_image.GetImage())
+	{
+		return false;
+	}
+
+	if (m_ROIRect.IsRectEmpty())
+	{
+		return false;
+	}
+
+	// Create a new image to save
+
+	USES_CONVERSION;
+	return m_image.Save(W2A(file_path.GetBuffer()));
 }
 
 bool CPicapDoc::SetParameters()
