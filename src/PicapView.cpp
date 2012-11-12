@@ -11,6 +11,13 @@
 #define new DEBUG_NEW
 #endif
 
+#ifndef MIN
+#define MIN(a, b)  ((a) > (b) ? (b) : (a))
+#endif
+
+#ifndef MAX
+#define MAX(a, b)  ((a) < (b) ? (b) : (a))
+#endif
 
 // CPicapView
 
@@ -21,6 +28,7 @@ BEGIN_MESSAGE_MAP(CPicapView, CView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 	ON_WM_CHAR()
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 // CPicapView construction/destruction
@@ -67,23 +75,46 @@ void CPicapView::OnDraw(CDC* pDC)
 		pDoc->GetImage().Width() - 1, 
 		pDoc->GetImage().Height() - 1
 	};
-	pDoc->GetImage().DrawToHDC(pDC->m_hDC, &rect);
+
+	// 
+	CDC dcCompatible;
+	dcCompatible.CreateCompatibleDC(pDC);	
+	CBitmap bitmapCompatible;
+	bitmapCompatible.CreateCompatibleBitmap(pDC, pDoc->GetImage().Width(), pDoc->GetImage().Height());
+	CBitmap* pOldBitmap = dcCompatible.SelectObject(&bitmapCompatible);
+	pDoc->GetImage().DrawToHDC(dcCompatible.m_hDC, &rect);
+		
+	CRect clientRect;
+	GetClientRect(&clientRect);
+
+	CDC dcCompatibleBk;
+	CBitmap bitmapCompatibleBk;
+	bitmapCompatibleBk.CreateCompatibleBitmap(pDC, clientRect.Width(), clientRect.Height());
+	dcCompatibleBk.CreateCompatibleDC(pDC);
+	CBitmap* pOldBitmapBk = dcCompatibleBk.SelectObject(&bitmapCompatibleBk);
+	dcCompatibleBk.FillSolidRect(&clientRect, RGB(192, 192, 192));
 
 	// Draw the rectangle area
 	if (m_isStarted)
 	{
 		CBrush brush;
 		brush.CreateStockObject(NULL_BRUSH);
-		CPen pen(PS_DASH, 1, RGB(0, 0, 0));
+		CPen pen(PS_DOT, 1, RGB(0, 0, 0));
 		
-		CBrush* pOldBrush=pDC->SelectObject(&brush);
-		CPen* pOldPen = pDC->SelectObject(&pen);
+		CBrush* pOldBrush=dcCompatible.SelectObject(&brush);
+		CPen* pOldPen = dcCompatible.SelectObject(&pen);
 
-		pDC->Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
+		dcCompatible.Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
 
-		pDC->SelectObject(pOldPen);
-		pDC->SelectObject(pOldBrush);
+		dcCompatible.SelectObject(pOldPen);
+		dcCompatible.SelectObject(pOldBrush);
 	}
+
+	dcCompatibleBk.BitBlt(0, 0, pDoc->GetImage().Width(), pDoc->GetImage().Height(), &dcCompatible, 0, 0, SRCCOPY);
+	pDC->BitBlt(0, 0, clientRect.Width(), clientRect.Height(), &dcCompatibleBk, 0, 0, SRCCOPY);
+
+	dcCompatible.SelectObject(pOldBitmap);
+	dcCompatibleBk.SelectObject(pOldBitmapBk);
 }
 
 
@@ -137,10 +168,10 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 			m_isFinished = FALSE;
 
 			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
 			InvalidateRect(&ROIRect);
 
-			m_startPoint = point;
+			m_startPoint = m_finishPoint = point;
 		}
 	}
 
@@ -156,7 +187,7 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 		if (m_isStarted && !m_isFinished)
 		{
 			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
 			InvalidateRect(&ROIRect);
 
 			m_finishPoint = point;
@@ -197,6 +228,19 @@ CRect CPicapView::CalcBoundRect(const CPoint &pt1, const CPoint &pt2)
 	return CRect(topLeftPt, bottomRight);
 }
 
+// Calculate the bound rect of this three point
+CRect CPicapView::CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3)
+{
+	CPoint topLeftPt, bottomRight;
+	topLeftPt.x = MIN(MIN(pt1.x, pt2.x), pt3.x);
+	topLeftPt.y = MIN(MIN(pt1.y, pt2.y), pt3.y);
+
+	bottomRight.x = MAX(MAX(pt1.x, pt2.x), pt3.x);
+	bottomRight.y = MAX(MAX(pt1.y, pt2.y), pt3.y);
+
+	return CRect(topLeftPt, bottomRight);
+}
+
 BOOL CPicapView::IsImageOpened() const
 {
 	CPicapDoc* pDoc = GetDocument();
@@ -212,4 +256,32 @@ BOOL CPicapView::IsImageOpened() const
 	}
 
 	return TRUE;
+}
+
+BOOL CPicapView::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: Add your message handler code here and/or call default
+	// If the image is opened, don't erase the background
+	CPicapDoc* pDoc = GetDocument();
+	if (pDoc && (NULL != pDoc->GetImage().GetImage()))
+		return TRUE;
+
+	// Just draw the white background
+	CRect clientRect;
+	GetClientRect(&clientRect);
+
+	CDC dcCompatibleBk;
+	CBitmap bitmapCompatibleBk;
+	bitmapCompatibleBk.CreateCompatibleBitmap(pDC, clientRect.Width(), clientRect.Height());
+	dcCompatibleBk.CreateCompatibleDC(pDC);
+	CBitmap* pOldBitmapBk = dcCompatibleBk.SelectObject(&bitmapCompatibleBk);
+	dcCompatibleBk.FillSolidRect(&clientRect, RGB(192,192,192));
+
+	pDC->BitBlt(0, 0, clientRect.Width(), clientRect.Height(), &dcCompatibleBk, 0, 0, SRCCOPY);
+
+	dcCompatibleBk.SelectObject(pOldBitmapBk);
+
+	// To avoid flashing
+	return TRUE;
+	// return CView::OnEraseBkgnd(pDC);
 }

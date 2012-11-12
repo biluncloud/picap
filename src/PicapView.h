@@ -46,12 +46,15 @@ public:
 
 private:
 	CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);
+	CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3);
 
 private:
 	BOOL m_isStarted;
 	BOOL m_isFinished;
 	CPoint m_startPoint;
 	CPoint m_finishPoint;
+public:
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
 #ifndef _DEBUG  // debug version in PicapView.cpp
