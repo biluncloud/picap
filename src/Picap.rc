@@ -130,6 +130,7 @@ BEGIN
     END
     POPUP "Tool"
     BEGIN
+        MENUITEM "Unselect",                    ID_TOOL_UNSELECT
         MENUITEM "Option",                      ID_TOOL_OPTION
     END
     POPUP "&View"

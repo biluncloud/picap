@@ -55,6 +55,7 @@ private:
 	CPoint m_finishPoint;
 public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnToolUnselect();
 };
 
 #ifndef _DEBUG  // debug version in PicapView.cpp

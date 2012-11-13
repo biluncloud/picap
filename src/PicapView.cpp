@@ -29,6 +29,7 @@ BEGIN_MESSAGE_MAP(CPicapView, CView)
 	ON_WM_LBUTTONUP()
 //	ON_WM_CHAR()
 	ON_WM_ERASEBKGND()
+	ON_COMMAND(ID_TOOL_UNSELECT, &CPicapView::OnToolUnselect)
 END_MESSAGE_MAP()
 
 // CPicapView construction/destruction
@@ -319,4 +320,19 @@ BOOL CPicapView::OnEraseBkgnd(CDC* pDC)
 	// To avoid flashing
 	return TRUE;
 	// return CView::OnEraseBkgnd(pDC);
+}
+
+void CPicapView::OnToolUnselect()
+{
+	// TODO: Add your command handler code here
+	CPicapDoc* pDoc = GetDocument();
+	pDoc->ResetROIRect();
+
+	if (m_isStarted && m_isFinished)
+	{
+		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+		InvalidateRect(&ROIRect);
+	}
+
+	m_isStarted = m_isFinished = FALSE;
 }

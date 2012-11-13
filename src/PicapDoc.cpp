@@ -146,6 +146,11 @@ void CPicapDoc::SetROIRect(const CRect &rect)
 	m_ROIRect = rect;
 }
 
+void CPicapDoc::ResetROIRect()
+{
+	m_ROIRect.SetRectEmpty();
+}
+
 bool CPicapDoc::DestroyData()
 {
 	if (NULL != m_image.GetImage())

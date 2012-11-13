@@ -23,6 +23,7 @@ public:
 	CvvImage &GetImage();
 	const CRect &GetROIRect() const;
 	void SetROIRect(const CRect &rect);
+	void ResetROIRect();
 
 // Overrides
 public:
