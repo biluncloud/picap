@@ -17,7 +17,7 @@ public:
 
 // Operations
 public:
-	bool OpenImage(CString &file_path);
+	bool LoadImage(CString &file_path);
 	bool SaveImage(CString &file_path);
 	bool SetParameters();
 	CvvImage &GetImage();
@@ -50,6 +50,9 @@ private:
 private:
 	CvvImage m_image;
 	CRect m_ROIRect;
+public:
+	afx_msg void OnFileOpen();
+	afx_msg void OnFileSave();
 };
 
 

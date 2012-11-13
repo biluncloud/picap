@@ -19,8 +19,6 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
-	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
-	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_TOOL_OPTION, &CMainFrame::OnToolOption)
 	ON_WM_CHAR()
 END_MESSAGE_MAP()
@@ -103,43 +101,6 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 
 // CMainFrame message handlers
-
-
-
-
-void CMainFrame::OnFileOpen()
-{
-	// TODO: Add your command handler code here
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
-	if(IDOK == dlg.DoModal())
-	{
-		CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
-		if (!pDoc->OpenImage(dlg.GetFileName()))
-		{
-			MessageBox(OPEN_IMAGE_FAILED_STR);
-			return;
-		}
-	}
-}
-
-void CMainFrame::OnFileSave()
-{
-	// TODO: Add your command handler code here
-	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
-	if(IDOK == dlg.DoModal())
-	{
-		CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
-		if ((NULL == pDoc) || (NULL == pDoc->GetImage().GetImage()))
-		{
-			MessageBox(SAVE_IMAGE_NOT_READY_STR);
-			return;
-		}
-		if (!pDoc->SaveImage(dlg.GetFileName()))
-		{
-			MessageBox(SAVE_IMAGE_FAILED_STR);
-		}
-	}
-}
 
 void CMainFrame::OnToolOption()
 {

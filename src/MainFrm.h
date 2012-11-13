@@ -40,8 +40,6 @@ protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnFileOpen();
-	afx_msg void OnFileSave();
 	afx_msg void OnToolOption();
 
 // Attributes

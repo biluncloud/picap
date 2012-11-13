@@ -5,6 +5,7 @@
 #include "Picap.h"
 
 #include "PicapDoc.h"
+#include "strings.h"
 
 #include <cxcore.h>
 #include <highgui.h>
@@ -22,6 +23,8 @@
 IMPLEMENT_DYNCREATE(CPicapDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CPicapDoc, CDocument)
+	ON_COMMAND(ID_FILE_OPEN, &CPicapDoc::OnFileOpen)
+	ON_COMMAND(ID_FILE_SAVE, &CPicapDoc::OnFileSave)
 END_MESSAGE_MAP()
 
 
@@ -82,7 +85,7 @@ void CPicapDoc::Dump(CDumpContext& dc) const
 
 
 // CPicapDoc commands
-bool CPicapDoc::OpenImage(CString &file_path)
+bool CPicapDoc::LoadImage(CString &file_path)
 {
 	USES_CONVERSION;
 	// Destroy the data first
@@ -109,15 +112,18 @@ bool CPicapDoc::SaveImage(CString &file_path)
 		return false;
 	}
 
-	if (m_ROIRect.IsRectEmpty())
+	if (!m_ROIRect.IsRectEmpty())
 	{
-		return false;
+		// If the ROI is selected, only this selected area would be saved
+		cvSetImageROI(m_image.GetImage(), 
+			cvRect(m_ROIRect.left, m_ROIRect.top, m_ROIRect.Width(), m_ROIRect.Height()));
 	}
 
-	// Create a new image to save
-
 	USES_CONVERSION;
-	return m_image.Save(W2A(file_path.GetBuffer()));
+	bool ret = m_image.Save(W2A(file_path.GetBuffer()));
+	cvResetImageROI(m_image.GetImage());
+
+	return ret;
 }
 
 bool CPicapDoc::SetParameters()
@@ -148,4 +154,31 @@ bool CPicapDoc::DestroyData()
 	}
 
 	return true;
+}
+
+void CPicapDoc::OnFileOpen()
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
+	if(IDOK == dlg.DoModal())
+	{
+		if (!LoadImage(dlg.GetFileName()))
+		{
+			AfxMessageBox(LOAD_IMAGE_FAILED_STR);
+			return;
+		}
+	}
+}
+
+void CPicapDoc::OnFileSave()
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(FALSE, DEFAULT_SAVE_EXT_STR, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
+	if(IDOK == dlg.DoModal())
+	{
+		if (!SaveImage(dlg.GetFileName()))
+		{
+			AfxMessageBox(SAVE_IMAGE_FAILED_STR);
+		}
+	}
 }
