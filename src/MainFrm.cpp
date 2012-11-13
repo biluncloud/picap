@@ -105,11 +105,7 @@ void CMainFrame::Dump(CDumpContext& dc) const
 void CMainFrame::OnToolOption()
 {
 	// TODO: Add your command handler code here
-	CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
-	if (!pDoc->SetParameters())
-	{
-		MessageBox(SET_PARAM_FAILED_STR);
-	}
+	m_options.DoModal();
 }
 
 void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -156,4 +152,9 @@ void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	CFrameWnd::OnChar(nChar, nRepCnt, nFlags);
+}
+
+const COptionsDlg *CMainFrame::GetOptions() const
+{
+	return &m_options;
 }

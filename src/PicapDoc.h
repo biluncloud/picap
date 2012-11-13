@@ -19,7 +19,6 @@ public:
 public:
 	bool LoadImage(CString &file_path);
 	bool SaveImage(CString &file_path);
-	bool SetParameters();
 	CvvImage &GetImage();
 	const CRect &GetROIRect() const;
 	void SetROIRect(const CRect &rect);

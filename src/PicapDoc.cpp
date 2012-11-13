@@ -126,11 +126,6 @@ bool CPicapDoc::SaveImage(CString &file_path)
 	return ret;
 }
 
-bool CPicapDoc::SetParameters()
-{
-	return true;
-}
-
 CvvImage &CPicapDoc::GetImage()
 {
 	return m_image;

@@ -147,6 +147,7 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
+		// The first point is already set, this time is the second point
 		if (m_isStarted && !m_isFinished)
 		{
 			m_isFinished = TRUE;
@@ -158,7 +159,6 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 			
 			InvalidateRect(&ROIRect);
 		}
-		// The first point is already set, this time is the second point
 		else
 		{
 			m_isStarted = TRUE;

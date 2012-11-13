@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "OptionsDlg.h"
+
 class CPicapDoc;
 
 class CMainFrame : public CFrameWnd
@@ -18,6 +20,7 @@ public:
 
 // Operations
 public:
+	const COptionsDlg *GetOptions() const;
 
 // Overrides
 public:
@@ -44,6 +47,7 @@ public:
 
 // Attributes
 private:
+	COptionsDlg m_options;
 public:
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };

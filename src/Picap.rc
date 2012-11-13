@@ -62,6 +62,55 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_OPTIONS DIALOGEX 0, 0, 316, 180
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,205,159,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,259,159,50,14
+    EDITTEXT        IDC_EDIT1,140,32,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "Width:Height",IDC_STATIC,86,35,43,8
+    EDITTEXT        IDC_EDIT2,190,32,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           ":",IDC_STATIC,182,35,8,8
+    EDITTEXT        IDC_EDIT3,140,60,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "Width Range",IDC_STATIC,87,63,42,8
+    EDITTEXT        IDC_EDIT4,190,60,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "~",IDC_STATIC,182,63,8,8
+    EDITTEXT        IDC_EDIT5,140,88,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "Height Range",IDC_STATIC,85,91,44,8
+    EDITTEXT        IDC_EDIT6,190,88,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "~",IDC_STATIC,182,91,8,8
+    EDITTEXT        IDC_EDIT7,140,116,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "Step",IDC_STATIC,113,119,16,8
+    GROUPBOX        "Setting",IDC_STATIC,55,21,204,119
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 173
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
 #endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -255,7 +304,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    AFX_IDS_APP_TITLE       "Picap"
+    AFX_IDS_APP_TITLE       "Picap for Emily"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 

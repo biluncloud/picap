@@ -192,6 +192,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OptionsDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Picap.cpp"
 				>
 			</File>
@@ -215,6 +219,10 @@
 			>
 			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OptionsDlg.h"
 				>
 			</File>
 			<File
