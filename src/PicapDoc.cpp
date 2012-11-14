@@ -167,6 +167,8 @@ void CPicapDoc::OnFileOpen()
 			AfxMessageBox(LOAD_IMAGE_FAILED_STR);
 			return;
 		}
+
+		SetTitle(dlg.GetFileTitle());
 	}
 }
 

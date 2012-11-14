@@ -19,6 +19,7 @@ COptionsDlg::COptionsDlg(CWnd* pParent /*=NULL*/)
 	, m_minHeight(80)
 	, m_maxHeight(190)
 	, m_stepWidth(5)
+	, m_stepHeight(10)
 {
 
 }
@@ -43,7 +44,9 @@ void COptionsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT6, m_maxHeight);
 	DDV_MinMaxInt(pDX, m_maxHeight, 0, 65535);
 	DDX_Text(pDX, IDC_EDIT7, m_stepWidth);
-	DDV_MinMaxInt(pDX, m_stepWidth, 0, 65535);
+	DDV_MinMaxInt(pDX, m_stepWidth, 1, 65535);
+	
+	m_stepHeight = m_stepWidth * m_heigthFactor / m_widthFactor;
 }
 
 
@@ -58,18 +61,45 @@ CPoint COptionsDlg::GetNextPosition(CPoint firstPt, CPoint currentPt) const
 	CPoint candidatePt;
 	currentPt -= firstPt;
 
+	int factor = currentPt.x * currentPt.y >= 0 ? 1 : -1;
+
 	if (m_widthFactor >= m_heigthFactor)
 	{
+		int xFactor = currentPt.x >= 0 ? 1 : -1;
+		if (currentPt.x * xFactor < m_minWidth)
+		{
+			currentPt.x = m_minWidth * xFactor;
+		}
+		else if (currentPt.x * xFactor > m_maxWidth)
+		{
+			currentPt.x = m_maxWidth * xFactor;
+		}
+		else
+		{
+			currentPt.x = ((currentPt.x * xFactor - m_minWidth) / m_stepWidth * m_stepWidth + m_minWidth ) * xFactor;
+		}
 		candidatePt.x = currentPt.x;
 		candidatePt.y = candidatePt.x * m_heigthFactor / m_widthFactor;
-		int factor = currentPt.x * currentPt.y >=0 ? 1 : -1;
 		candidatePt.y *= factor;
 	}
 	else
 	{
+		int yFactor = currentPt.y >= 0 ? 1 : -1;
+		if (currentPt.y * yFactor < m_minHeight)
+		{
+			currentPt.y = m_minHeight * yFactor;
+		}
+		else if (currentPt.y * yFactor > m_maxHeight)
+		{
+			currentPt.y = m_maxHeight * yFactor;
+		}
+		else
+		{
+			currentPt.y = ((currentPt.y * yFactor - m_minHeight) / m_stepHeight * m_stepHeight + m_minHeight) * yFactor;
+		}
+
 		candidatePt.y = currentPt.y;
 		candidatePt.x = candidatePt.y * m_widthFactor / m_heigthFactor;
-		int factor = currentPt.x * currentPt.y >=0 ? 1 : -1;
 		candidatePt.x *= factor;
 	}
 

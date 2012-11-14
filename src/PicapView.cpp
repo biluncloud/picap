@@ -108,6 +108,14 @@ void CPicapView::OnDraw(CDC* pDC)
 
 		dcCompatible.Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
 
+		CString textStr;
+		textStr.Format(_T("%d x %d"), 
+			abs(m_finishPoint.x - m_startPoint.x), 
+			abs(m_finishPoint.y - m_startPoint.y));
+		dcCompatible.DrawText(textStr, 
+			CalcBoundRect(m_startPoint, m_finishPoint),
+			DT_CENTER | DT_VCENTER);
+
 		dcCompatible.SelectObject(pOldPen);
 		dcCompatible.SelectObject(pOldBrush);
 	}

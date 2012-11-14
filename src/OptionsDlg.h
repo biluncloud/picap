@@ -28,6 +28,7 @@ public:
 	int m_minHeight;
 	int m_maxHeight;
 	int m_stepWidth;
+	int m_stepHeight;
 
 public:
 	// This method will give the position within all the restriction
