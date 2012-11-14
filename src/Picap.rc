@@ -88,7 +88,7 @@ BEGIN
     EDITTEXT        IDC_EDIT6,190,88,40,14,ES_CENTER | ES_AUTOHSCROLL
     LTEXT           "~",IDC_STATIC,182,91,8,8
     EDITTEXT        IDC_EDIT7,140,116,40,14,ES_CENTER | ES_AUTOHSCROLL
-    LTEXT           "Step",IDC_STATIC,113,119,16,8
+    LTEXT           "Step Width",IDC_STATIC,93,119,36,8
     GROUPBOX        "Setting",IDC_STATIC,55,21,204,119
 END
 
@@ -299,7 +299,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDR_MAINFRAME           "Picap\n\nPicap\n\n\nPicap.Document\nPicap.Document"
+    IDR_MAINFRAME           "Picap for Emily\n\nPicap\n\n\nPicap.Document\nPicap.Document"
 END
 
 STRINGTABLE 

@@ -22,6 +22,10 @@ public:
 public:
 	const COptionsDlg *GetOptions() const;
 
+	// This method will give the position within all the restriction
+	// The nearest position to the current point will be given
+	CPoint GetNextPosition(CPoint firstPt, CPoint currentPt) const;
+
 // Overrides
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);

@@ -158,3 +158,8 @@ const COptionsDlg *CMainFrame::GetOptions() const
 {
 	return &m_options;
 }
+
+CPoint CMainFrame::GetNextPosition(CPoint firstPt, CPoint currentPt) const
+{
+	return m_options.GetNextPosition(firstPt, currentPt);
+}

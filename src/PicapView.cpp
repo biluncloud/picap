@@ -6,6 +6,7 @@
 
 #include "PicapDoc.h"
 #include "PicapView.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -151,7 +152,8 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 		if (m_isStarted && !m_isFinished)
 		{
 			m_isFinished = TRUE;
-			m_finishPoint = point;
+			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
+			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
 
 			CPicapDoc* pDoc = GetDocument();
 			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
@@ -186,7 +188,8 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
 			InvalidateRect(&ROIRect);
 
-			m_finishPoint = point;
+			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
+			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
 		}
 	}
 
