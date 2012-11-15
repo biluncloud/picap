@@ -108,6 +108,7 @@ void CPicapView::OnDraw(CDC* pDC)
 
 		dcCompatible.Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
 
+		// Draw the width and height
 		CString textStr;
 		textStr.Format(_T("%d x %d"), 
 			abs(m_finishPoint.x - m_startPoint.x), 
