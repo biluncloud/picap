@@ -13,6 +13,7 @@
 #define IDC_EDIT5                       1004
 #define IDC_EDIT6                       1005
 #define IDC_EDIT7                       1006
+#define IDC_BUTTON1                     1007
 #define ID_TOOL_OPTION                  32771
 #define ID_TOOL_UNSELECT                32772
 
@@ -22,7 +23,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

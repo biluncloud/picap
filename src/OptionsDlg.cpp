@@ -5,6 +5,15 @@
 #include "Picap.h"
 #include "OptionsDlg.h"
 
+// default settings
+const int g_defWidthFactor = 1;
+const int g_defHeigthFactor = 2;
+const int g_defMinWidth = 40;
+const int g_defMaxWidth = 95;
+const int g_defMinHeight = 80;
+const int g_defMaxHeight = 190;
+const int g_defStepWidth = 5;
+const int g_defStepHeight = 10;
 
 // COptionsDlg dialog
 
@@ -12,14 +21,14 @@ IMPLEMENT_DYNAMIC(COptionsDlg, CDialog)
 
 COptionsDlg::COptionsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(COptionsDlg::IDD, pParent)
-	, m_widthFactor(1)
-	, m_heigthFactor(2)
-	, m_minWidth(40)
-	, m_maxWidth(95)
-	, m_minHeight(80)
-	, m_maxHeight(190)
-	, m_stepWidth(5)
-	, m_stepHeight(10)
+	, m_widthFactor(g_defWidthFactor)
+	, m_heigthFactor(g_defHeigthFactor)
+	, m_minWidth(g_defMinWidth)
+	, m_maxWidth(g_defMaxWidth)
+	, m_minHeight(g_defMinHeight)
+	, m_maxHeight(g_defMaxHeight)
+	, m_stepWidth(g_defStepWidth)
+	, m_stepHeight(g_defStepHeight)
 {
 
 }
@@ -51,6 +60,7 @@ void COptionsDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(COptionsDlg, CDialog)
+	ON_BN_CLICKED(IDC_BUTTON1, &COptionsDlg::OnBnClickedDefault)
 END_MESSAGE_MAP()
 
 
@@ -104,4 +114,18 @@ CPoint COptionsDlg::GetNextPosition(CPoint firstPt, CPoint currentPt) const
 	}
 
 	return candidatePt + firstPt;
+}
+void COptionsDlg::OnBnClickedDefault()
+{
+	// TODO: Add your control notification handler code here
+	m_widthFactor = g_defWidthFactor;
+	m_heigthFactor = g_defHeigthFactor;
+	m_minWidth = g_defMinWidth;
+	m_maxWidth = g_defMaxWidth;
+	m_minHeight = g_defMinHeight;
+	m_maxHeight = g_defMaxHeight;
+	m_stepWidth = g_defStepWidth;
+	m_stepHeight = g_defStepHeight;
+	
+	UpdateData(FALSE);
 }
