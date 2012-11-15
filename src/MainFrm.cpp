@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_TOOL_OPTION, &CMainFrame::OnToolOption)
 	ON_WM_CHAR()
+//	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =

@@ -45,14 +45,14 @@ protected:
 
 // Attributes
 private:
-	bool DestroyData();
 
 private:
 	CvvImage m_image;
 	CRect m_ROIRect;
 public:
-	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual void DeleteContents();
 };
 
 

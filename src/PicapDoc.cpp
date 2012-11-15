@@ -23,7 +23,6 @@
 IMPLEMENT_DYNCREATE(CPicapDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CPicapDoc, CDocument)
-	ON_COMMAND(ID_FILE_OPEN, &CPicapDoc::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CPicapDoc::OnFileSave)
 END_MESSAGE_MAP()
 
@@ -88,12 +87,6 @@ void CPicapDoc::Dump(CDumpContext& dc) const
 bool CPicapDoc::LoadImage(CString &file_path)
 {
 	USES_CONVERSION;
-	// Destroy the data first
-	if (!DestroyData())
-	{
-		return false;
-	}
-
 	m_image.Load(W2A(file_path.GetBuffer()));
 	if (NULL == m_image.GetImage())
 	{
@@ -146,32 +139,6 @@ void CPicapDoc::ResetROIRect()
 	m_ROIRect.SetRectEmpty();
 }
 
-bool CPicapDoc::DestroyData()
-{
-	if (NULL != m_image.GetImage())
-	{
-		m_image.Destroy();
-	}
-
-	return true;
-}
-
-void CPicapDoc::OnFileOpen()
-{
-	// TODO: Add your command handler code here
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, FILE_FILTER_STR);
-	if(IDOK == dlg.DoModal())
-	{
-		if (!LoadImage(dlg.GetFileName()))
-		{
-			AfxMessageBox(LOAD_IMAGE_FAILED_STR);
-			return;
-		}
-
-		SetTitle(dlg.GetFileTitle());
-	}
-}
-
 void CPicapDoc::OnFileSave()
 {
 	// TODO: Add your command handler code here
@@ -183,4 +150,30 @@ void CPicapDoc::OnFileSave()
 			AfxMessageBox(SAVE_IMAGE_FAILED_STR);
 		}
 	}
+}
+
+BOOL CPicapDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+	if (!CDocument::OnOpenDocument(lpszPathName))
+		return FALSE;
+
+	// TODO:  Add your specialized creation code here
+	if (!LoadImage(CString(lpszPathName)))
+	{
+		AfxMessageBox(LOAD_IMAGE_FAILED_STR);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void CPicapDoc::DeleteContents()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (NULL != m_image.GetImage())
+	{
+		m_image.Destroy();
+	}
+
+	CDocument::DeleteContents();
 }
