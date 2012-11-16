@@ -177,3 +177,13 @@ void CPicapDoc::DeleteContents()
 
 	CDocument::DeleteContents();
 }
+
+int CPicapDoc::GetImageWidth()
+{
+	return (m_image.GetImage() == NULL) ? 0 : m_image.Width();
+}
+
+int CPicapDoc::GetImageHeight()
+{
+	return (m_image.GetImage() == NULL) ? 0 : m_image.Height();
+}

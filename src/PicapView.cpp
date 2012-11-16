@@ -36,8 +36,6 @@ END_MESSAGE_MAP()
 // CPicapView construction/destruction
 
 CPicapView::CPicapView()
-	: m_isStarted(FALSE)
-	, m_isFinished(FALSE)
 {
 	// TODO: add construction code here
 
@@ -84,11 +82,14 @@ void CPicapView::OnDraw(CDC* pDC)
 	CBitmap bitmapCompatible;
 	bitmapCompatible.CreateCompatibleBitmap(pDC, pDoc->GetImage().Width(), pDoc->GetImage().Height());
 	CBitmap* pOldBitmap = dcCompatible.SelectObject(&bitmapCompatible);
+	
+	// Draw the image on the buffer
 	pDoc->GetImage().DrawToHDC(dcCompatible.m_hDC, &rect);
 		
 	CRect clientRect;
 	GetClientRect(&clientRect);
 
+	// Draw the background on the buffer
 	CDC dcCompatibleBk;
 	CBitmap bitmapCompatibleBk;
 	bitmapCompatibleBk.CreateCompatibleBitmap(pDC, clientRect.Width(), clientRect.Height());
@@ -96,30 +97,7 @@ void CPicapView::OnDraw(CDC* pDC)
 	CBitmap* pOldBitmapBk = dcCompatibleBk.SelectObject(&bitmapCompatibleBk);
 	dcCompatibleBk.FillSolidRect(&clientRect, RGB(192, 192, 192));
 
-	// Draw the rectangle area
-	if (m_isStarted)
-	{
-		CBrush brush;
-		brush.CreateStockObject(NULL_BRUSH);
-		CPen pen(PS_DOT, 1, RGB(0, 0, 0));
-		
-		CBrush* pOldBrush=dcCompatible.SelectObject(&brush);
-		CPen* pOldPen = dcCompatible.SelectObject(&pen);
-
-		dcCompatible.Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
-
-		// Draw the width and height
-		CString textStr;
-		textStr.Format(_T("%d x %d"), 
-			abs(m_finishPoint.x - m_startPoint.x), 
-			abs(m_finishPoint.y - m_startPoint.y));
-		dcCompatible.DrawText(textStr, 
-			CalcBoundRect(m_startPoint, m_finishPoint),
-			DT_CENTER | DT_VCENTER);
-
-		dcCompatible.SelectObject(pOldPen);
-		dcCompatible.SelectObject(pOldBrush);
-	}
+	m_selectedRegion.DrawRegion(&dcCompatible);
 
 	dcCompatibleBk.BitBlt(0, 0, pDoc->GetImage().Width(), pDoc->GetImage().Height(), &dcCompatible, 0, 0, SRCCOPY);
 	pDC->BitBlt(0, 0, clientRect.Width(), clientRect.Height(), &dcCompatibleBk, 0, 0, SRCCOPY);
@@ -157,30 +135,7 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		// The first point is already set, this time is the second point
-		if (m_isStarted && !m_isFinished)
-		{
-			m_isFinished = TRUE;
-			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
-			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
-
-			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
-			pDoc->SetROIRect(ROIRect);
-			
-			InvalidateRect(&ROIRect);
-		}
-		else
-		{
-			m_isStarted = TRUE;
-			m_isFinished = FALSE;
-
-			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
-			InvalidateRect(&ROIRect);
-
-			m_startPoint = m_finishPoint = point;
-		}
+		m_selectedRegion.UpdateRegion(point);
 	}
 
 	CView::OnLButtonDown(nFlags, point);
@@ -263,32 +218,6 @@ void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 //	CView::OnChar(nChar, nRepCnt, nFlags);
 //}
 
-// Calculate the bound rect of this two point
-CRect CPicapView::CalcBoundRect(const CPoint &pt1, const CPoint &pt2)
-{
-	CPoint topLeftPt, bottomRight;
-	topLeftPt.x = (pt1.x < pt2.x) ? pt1.x : pt2.x;
-	topLeftPt.y = (pt1.y < pt2.y) ? pt1.y : pt2.y;
-
-	bottomRight.x = (pt1.x >= pt2.x) ? pt1.x : pt2.x;
-	bottomRight.y = (pt1.y >= pt2.y) ? pt1.y : pt2.y;
-
-	return CRect(topLeftPt, bottomRight);
-}
-
-// Calculate the bound rect of this three point
-CRect CPicapView::CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3)
-{
-	CPoint topLeftPt, bottomRight;
-	topLeftPt.x = MIN(MIN(pt1.x, pt2.x), pt3.x);
-	topLeftPt.y = MIN(MIN(pt1.y, pt2.y), pt3.y);
-
-	bottomRight.x = MAX(MAX(pt1.x, pt2.x), pt3.x);
-	bottomRight.y = MAX(MAX(pt1.y, pt2.y), pt3.y);
-
-	return CRect(topLeftPt, bottomRight);
-}
-
 BOOL CPicapView::IsImageOpened() const
 {
 	CPicapDoc* pDoc = GetDocument();
@@ -347,4 +276,108 @@ void CPicapView::OnToolUnselect()
 	}
 
 	m_isStarted = m_isFinished = FALSE;
+}
+
+CPicapView::CSelectedRegion::CSelectedRegion()
+	: m_isStarted(FALSE)
+	, m_isFinished(FALSE)
+	, m_startPoint(0, 0)
+	, m_finishPoint(0, 0)
+{
+}
+
+// Calculate the bound rect of this two point
+CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2)
+{
+	CPoint topLeftPt, bottomRight;
+	topLeftPt.x = (pt1.x < pt2.x) ? pt1.x : pt2.x;
+	topLeftPt.y = (pt1.y < pt2.y) ? pt1.y : pt2.y;
+
+	bottomRight.x = (pt1.x >= pt2.x) ? pt1.x : pt2.x;
+	bottomRight.y = (pt1.y >= pt2.y) ? pt1.y : pt2.y;
+
+	return CRect(topLeftPt, bottomRight);
+}
+
+// Calculate the bound rect of this three point
+CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3)
+{
+	CPoint topLeftPt, bottomRight;
+	topLeftPt.x = MIN(MIN(pt1.x, pt2.x), pt3.x);
+	topLeftPt.y = MIN(MIN(pt1.y, pt2.y), pt3.y);
+
+	bottomRight.x = MAX(MAX(pt1.x, pt2.x), pt3.x);
+	bottomRight.y = MAX(MAX(pt1.y, pt2.y), pt3.y);
+
+	return CRect(topLeftPt, bottomRight);
+}
+
+void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
+{
+	// Draw the rectangle area
+	if (m_isStarted)
+	{
+		CBrush brush;
+		brush.CreateStockObject(NULL_BRUSH);
+		CPen pen(PS_DOT, 1, RGB(0, 0, 0));
+		
+		CBrush* pOldBrush=pDC->SelectObject(&brush);
+		CPen* pOldPen = pDC->SelectObject(&pen);
+
+		pDC->Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
+
+		// Draw the width and height
+		CString textStr;
+		textStr.Format(_T("%d x %d"), 
+			abs(m_finishPoint.x - m_startPoint.x), 
+			abs(m_finishPoint.y - m_startPoint.y));
+		pDC->DrawText(textStr, 
+			CalcBoundRect(m_startPoint, m_finishPoint),
+			DT_CENTER | DT_VCENTER);
+
+		pDC->SelectObject(pOldPen);
+		pDC->SelectObject(pOldBrush);
+	}
+
+}
+
+BOOL CPicapView::CSelectedRegion::UpdateRegion(CPoint point, BOOL isBtnDown, CRect &oldRegion)
+{
+	if (!isBtnDown)
+	{
+		if (m_isStarted && !m_isFinished)
+		{
+			CPicapDoc* pDoc = GetDocument();
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
+			InvalidateRect(&ROIRect);
+
+			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
+			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
+		}
+	}
+
+	// The first point is already set, this time is the second point
+	if (m_isStarted && !m_isFinished)
+	{
+		m_isFinished = TRUE;
+		CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
+		m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
+
+		CPicapDoc* pDoc = GetDocument();
+		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+		pDoc->SetROIRect(ROIRect);
+		
+		InvalidateRect(&ROIRect);
+	}
+	else
+	{
+		m_isStarted = TRUE;
+		m_isFinished = FALSE;
+
+		CPicapDoc* pDoc = GetDocument();
+		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
+		InvalidateRect(&ROIRect);
+
+		m_startPoint = m_finishPoint = point;
+	}
 }

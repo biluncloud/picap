@@ -34,6 +34,20 @@ public:
 #endif
 
 protected:
+	class CSelectedRegion
+	{
+	public:
+		CSelectedRegion();
+		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);
+		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3);
+
+		void DrawRegion(CDC* pDC);
+	private:
+		BOOL m_isStarted;
+		BOOL m_isFinished;
+		CPoint m_startPoint;
+		CPoint m_finishPoint;
+	};
 
 // Generated message map functions
 protected:
@@ -45,14 +59,8 @@ public:
 //	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 private:
-	CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);
-	CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3);
+	CSelectedRegion m_selectedRegion;
 
-private:
-	BOOL m_isStarted;
-	BOOL m_isFinished;
-	CPoint m_startPoint;
-	CPoint m_finishPoint;
 public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnToolUnselect();

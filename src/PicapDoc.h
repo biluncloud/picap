@@ -23,6 +23,8 @@ public:
 	const CRect &GetROIRect() const;
 	void SetROIRect(const CRect &rect);
 	void ResetROIRect();
+	int GetImageWidth();
+	int GetImageHeight();
 
 // Overrides
 public:

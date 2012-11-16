@@ -160,7 +160,12 @@ const COptionsDlg *CMainFrame::GetOptions() const
 	return &m_options;
 }
 
-CPoint CMainFrame::GetNextPosition(CPoint firstPt, CPoint currentPt) const
+CPoint CMainFrame::GetNextPosition(CPoint firstPt, CPoint currentPt)
 {
+	int width = ((CPicapDoc *)GetActiveDocument())->GetImageWidth();
+	int height = ((CPicapDoc *)GetActiveDocument())->GetImageHeight();
+	currentPt.x = currentPt.x < 0 ? 0 : (currentPt.x >= width ? width : currentPt.x);
+	currentPt.y = currentPt.y < 0 ? 0 : (currentPt.y >= height ? height : currentPt.y);
+
 	return m_options.GetNextPosition(firstPt, currentPt);
 }
