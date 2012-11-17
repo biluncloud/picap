@@ -135,7 +135,30 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		m_selectedRegion.UpdateRegion(point);
+		// The first point is already set, this time is the second point
+		if (m_isStarted && !m_isFinished)
+		{
+			m_isFinished = TRUE;
+			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
+			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
+
+			CPicapDoc* pDoc = GetDocument();
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
+			pDoc->SetROIRect(ROIRect);
+			
+			InvalidateRect(&ROIRect);
+		}
+		else
+		{
+			m_isStarted = TRUE;
+			m_isFinished = FALSE;
+
+			CPicapDoc* pDoc = GetDocument();
+			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
+			InvalidateRect(&ROIRect);
+
+			m_startPoint = m_finishPoint = point;
+		}
 	}
 
 	CView::OnLButtonDown(nFlags, point);
@@ -146,6 +169,8 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
+		m_selectedRegion.UpdateTrasitionRegion(point);
+		InvalidateRect();
 		if (m_isStarted && !m_isFinished)
 		{
 			CPicapDoc* pDoc = GetDocument();
@@ -278,11 +303,12 @@ void CPicapView::OnToolUnselect()
 	m_isStarted = m_isFinished = FALSE;
 }
 
-CPicapView::CSelectedRegion::CSelectedRegion()
+CPicapView::CSelectedRegion::CSelectedRegion(CPicapView *currentView)
 	: m_isStarted(FALSE)
 	, m_isFinished(FALSE)
 	, m_startPoint(0, 0)
 	, m_finishPoint(0, 0)
+	, m_currentView(currentView)
 {
 }
 
@@ -341,43 +367,50 @@ void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
 
 }
 
-BOOL CPicapView::CSelectedRegion::UpdateRegion(CPoint point, BOOL isBtnDown, CRect &oldRegion)
+CRect CPicapView::CSelectedRegion::UpdateRegion(CPoint point)
 {
-	if (!isBtnDown)
-	{
-		if (m_isStarted && !m_isFinished)
-		{
-			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
-			InvalidateRect(&ROIRect);
-
-			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
-			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
-		}
-	}
-
+	CRect oldRegion = {0};
 	// The first point is already set, this time is the second point
 	if (m_isStarted && !m_isFinished)
 	{
+		// Update the selected region
 		m_isFinished = TRUE;
-		CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
+		CMainFrame* pFrame = (CMainFrame* )(m_currentView->GetParentFrame());
 		m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
 
+		// Set the render region, including text
 		CPicapDoc* pDoc = GetDocument();
 		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
 		pDoc->SetROIRect(ROIRect);
 		
 		InvalidateRect(&ROIRect);
+		return ROIRect;
 	}
 	else
 	{
 		m_isStarted = TRUE;
 		m_isFinished = FALSE;
 
-		CPicapDoc* pDoc = GetDocument();
 		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
 		InvalidateRect(&ROIRect);
 
 		m_startPoint = m_finishPoint = point;
+		return ROIRect;
 	}
+
+	return oldRegion;
+}
+
+CRect CPicapView::CSelectedRegion::UpdateTrasitionRegion(CPoint point)
+{
+	CRect oldRegion = {0};
+	if (m_isStarted && !m_isFinished)
+	{
+		CMainFrame* pFrame = (CMainFrame* )(m_currentView->GetParentFrame());
+		m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
+
+		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint, point);
+	}
+
+	return oldRegion;
 }

@@ -37,16 +37,20 @@ protected:
 	class CSelectedRegion
 	{
 	public:
-		CSelectedRegion();
+		CSelectedRegion(CPicapView *currentView);
 		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);
 		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3);
 
 		void DrawRegion(CDC* pDC);
+		CRect UpdateRegion(CPoint point);
+		CRect UpdateTrasitionRegion(CPoint point);
 	private:
 		BOOL m_isStarted;
 		BOOL m_isFinished;
 		CPoint m_startPoint;
 		CPoint m_finishPoint;
+
+		CPicapView *m_currentView;
 	};
 
 // Generated message map functions

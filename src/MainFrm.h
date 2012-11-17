@@ -18,8 +18,6 @@ public:
 
 // Operations
 public:
-	const COptionsDlg *GetOptions() const;
-
 	// This method will give the position within all the restriction
 	// The nearest position to the current point will be given
 	CPoint GetNextPosition(CPoint firstPt, CPoint currentPt);
@@ -49,7 +47,7 @@ public:
 
 // Attributes
 private:
-	COptionsDlg m_options;
+
 public:
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };

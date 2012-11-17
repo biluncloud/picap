@@ -19,3 +19,9 @@ bin/
 */readme.txt
 *.cd
 *Picap.aps
+
+# Files for vim
+*filenametags
+*tags
+*cscope*
+*.swp

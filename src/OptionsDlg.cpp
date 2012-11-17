@@ -15,6 +15,7 @@ const int g_defMaxHeight = 190;
 const int g_defStepWidth = 5;
 const int g_defStepHeight = 10;
 
+COptionsDlg *COptionsDlg::m_instance = NULL;
 // COptionsDlg dialog
 
 IMPLEMENT_DYNAMIC(COptionsDlg, CDialog)
@@ -35,6 +36,20 @@ COptionsDlg::COptionsDlg(CWnd* pParent /*=NULL*/)
 
 COptionsDlg::~COptionsDlg()
 {
+    if (m_instance != NULL)
+    {
+        delete m_instance;
+    }
+}
+
+COptionsDlg *COptionsDlg::GetInstance()
+{
+    if (m_instance == NULL)
+    {
+        m_instance = new COptionsDlg();
+    }
+
+    return m_instance;
 }
 
 void COptionsDlg::DoDataExchange(CDataExchange* pDX)

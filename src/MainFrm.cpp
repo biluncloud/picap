@@ -106,7 +106,7 @@ void CMainFrame::Dump(CDumpContext& dc) const
 void CMainFrame::OnToolOption()
 {
 	// TODO: Add your command handler code here
-	m_options.DoModal();
+    COptionsDlg::GetInstance()->DoModal();
 }
 
 void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -155,11 +155,6 @@ void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CFrameWnd::OnChar(nChar, nRepCnt, nFlags);
 }
 
-const COptionsDlg *CMainFrame::GetOptions() const
-{
-	return &m_options;
-}
-
 CPoint CMainFrame::GetNextPosition(CPoint firstPt, CPoint currentPt)
 {
 	int width = ((CPicapDoc *)GetActiveDocument())->GetImageWidth();
@@ -167,5 +162,5 @@ CPoint CMainFrame::GetNextPosition(CPoint firstPt, CPoint currentPt)
 	currentPt.x = currentPt.x < 0 ? 0 : (currentPt.x >= width ? width : currentPt.x);
 	currentPt.y = currentPt.y < 0 ? 0 : (currentPt.y >= height ? height : currentPt.y);
 
-	return m_options.GetNextPosition(firstPt, currentPt);
+	return COptionsDlg::GetInstance()->GetNextPosition(firstPt, currentPt);
 }
