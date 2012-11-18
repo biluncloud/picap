@@ -29,9 +29,7 @@ BEGIN_MESSAGE_MAP(CPicapView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
-//	ON_WM_CHAR()
 	ON_WM_ERASEBKGND()
-	ON_COMMAND(ID_TOOL_UNSELECT, &CPicapView::OnToolUnselect)
 END_MESSAGE_MAP()
 
 // CPicapView construction/destruction
@@ -136,17 +134,24 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-        CRect invalidRegion = m_selectedRegion.UpdateRegion(point);
-        if (!invalidRegion.IsRectEmpty())
-        {
-            InvalidateRect(&invalidRegion);
-        }
+		int width = GetDocument()->GetImageWidth();
+		int height = GetDocument()->GetImageHeight();
+		BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
+		if (isWithinImage)
+		{
+	        CRect invalidRegion = m_selectedRegion.UpdateRegion(point);
+	        if (!invalidRegion.IsRectEmpty())
+	        {
+	            InvalidateRect(&invalidRegion);
+	        }
 
-        if (m_selectedRegion.IsRegionOK())
-        {
-			CPicapDoc* pDoc = GetDocument();
-			pDoc->SetROIRect(m_selectedRegion.GetRegion());
-        }
+	        if (m_selectedRegion.IsRegionOK())
+	        {
+				CPicapDoc* pDoc = GetDocument();
+				pDoc->SetROIRect(m_selectedRegion.GetRegion());
+	        }
+		}
+
 	}
 
 	CView::OnLButtonDown(nFlags, point);
@@ -157,11 +162,17 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		CRect invalidRegion = m_selectedRegion.UpdateTrasitionRegion(point);
-        if (!invalidRegion.IsRectEmpty())
-        {
-            InvalidateRect(&invalidRegion);
-        }
+		int width = GetDocument()->GetImageWidth();
+		int height = GetDocument()->GetImageHeight();
+		BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
+		if (isWithinImage)
+		{
+			CRect invalidRegion = m_selectedRegion.UpdateTrasitionRegion(point);
+	        if (!invalidRegion.IsRectEmpty())
+	        {
+	            InvalidateRect(&invalidRegion);
+	        }
+		}
 	}
 
 	CView::OnMouseMove(nFlags, point);
@@ -223,17 +234,16 @@ BOOL CPicapView::OnEraseBkgnd(CDC* pDC)
 	// return CView::OnEraseBkgnd(pDC);
 }
 
-void CPicapView::OnToolUnselect()
+void CPicapView::UnselectRegion()
 {
 	// TODO: Add your command handler code here
 	CPicapDoc* pDoc = GetDocument();
 	pDoc->ResetROIRect();
 
-	CRect invalidRegion = m_selectedRegion.ResetRegion();
-    if (!invalidRegion.IsRectEmpty())
-    {
-        InvalidateRect(&invalidRegion);
-    }
+	m_selectedRegion.ResetRegion();
+	// Update all the area
+	Invalidate();
+	UpdateWindow();
 }
 
 CPicapView::CSelectedRegion::CSelectedRegion()
@@ -260,7 +270,7 @@ void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
 
 		// Draw the width and height
 		CString textStr;
-		textStr.Format(_T("%d x %d"), 
+		textStr.Format(_T("%dx%d"), 
 			abs(m_finishPoint.x - m_startPoint.x), 
 			abs(m_finishPoint.y - m_startPoint.y));
 		pDC->DrawText(textStr, 
@@ -274,22 +284,16 @@ void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
 
 CRect CPicapView::CSelectedRegion::UpdateRegion(CPoint point)
 {
-	CRect oldRegion(0, 0, 0, 0);
+	CRect oldRegion = GetInvalidRegion();
 	// The first point is already set, this time the second point will be updated
 	if (m_isStarted && !m_isFinished)
 	{
-		// Calculate the invalidate region, including text
-		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
-
 		// Update the selected region
 		m_isFinished = TRUE;
 		m_finishPoint = COptionsDlg::GetInstance()->GetNextPosition(m_startPoint, point);
 	}
 	else
 	{
-		// Calculate the invalidate region, including text
-		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
-
 		// Update the selected region
 		m_isStarted = TRUE;
 		m_isFinished = FALSE;
@@ -326,7 +330,7 @@ CRect CPicapView::CSelectedRegion::ResetRegion()
 
 BOOL CPicapView::CSelectedRegion::IsRegionOK() const
 {
-	if (m_isStarted && !m_isFinished)
+	if (m_isStarted && m_isFinished)
     {
         return TRUE;
     }
@@ -368,3 +372,8 @@ CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint
 	return CRect(topLeftPt, bottomRight);
 }
 
+// This returns the invalid region, include the text area
+CRect CPicapView::CSelectedRegion::GetInvalidRegion() const
+{
+	return CalcBoundRect(m_startPoint, m_finishPoint);
+}

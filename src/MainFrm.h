@@ -44,7 +44,8 @@ public:
 private:
 
 public:
-	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnToolUnselect();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 

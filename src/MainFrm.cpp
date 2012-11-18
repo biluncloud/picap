@@ -6,6 +6,7 @@
 
 #include "MainFrm.h"
 #include "PicapDoc.h"
+#include "PicapView.h"
 #include "strings.h"
 #include "OptionsDlg.h"
 
@@ -21,8 +22,8 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_TOOL_OPTION, &CMainFrame::OnToolOption)
-	ON_WM_CHAR()
 //	ON_WM_DROPFILES()
+ON_COMMAND(ID_TOOL_UNSELECT, &CMainFrame::OnToolUnselect)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -110,49 +111,58 @@ void CMainFrame::OnToolOption()
     COptionsDlg::GetInstance()->DoModal();
 }
 
-void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+void CMainFrame::OnToolUnselect()
 {
-	// TODO: Add your message handler code here and/or call default
-	switch (nChar)
-	{
-	case VK_ESCAPE: 
-        // Process an escape. 
-        
-        break; 
-
-    case VK_RETURN: 
-        // Process a carriage return. 
-         
-        break; 
-
-    case VK_LEFT: 
-        break; 
-
-    case VK_RIGHT: 
-        break; 
-
-    case VK_UP: 
-        break; 
-
-    case VK_DOWN: 
-        break; 
-		
-    case VK_PRIOR: 
-        break; 
-
-    case VK_NEXT: 
-        break; 
-
-    case VK_HOME: 
-        break; 
-
-    case VK_END: 
-        break; 
-
-	default:
-		break;
-	}
-
-	CFrameWnd::OnChar(nChar, nRepCnt, nFlags);
+	// TODO: Add your command handler code here
+	((CPicapView *)GetActiveView())->UnselectRegion();
 }
 
+BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	CPicapDoc *pDoc = (CPicapDoc *)GetActiveDocument();
+	if (pMsg->message == WM_KEYDOWN)
+	{
+		switch (pMsg->wParam)
+		{
+		case VK_ESCAPE: 
+	        // Process an escape. 
+			OnToolUnselect();
+	        break; 
+
+	    case VK_RETURN: 
+	        // Process a carriage return. 
+			pDoc->OnFileSave();
+	        break; 
+
+	    case VK_LEFT: 
+	        break; 
+
+	    case VK_RIGHT: 
+	        break; 
+
+	    case VK_UP: 
+	        break; 
+
+	    case VK_DOWN: 
+	        break; 
+			
+	    case VK_PRIOR: 
+	        break; 
+
+	    case VK_NEXT: 
+	        break; 
+
+	    case VK_HOME: 
+	        break; 
+
+	    case VK_END: 
+	        break; 
+
+		default:
+			break;
+		}
+	}
+
+	return CFrameWnd::PreTranslateMessage(pMsg);
+}

@@ -13,11 +13,12 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	CPicapDoc* GetDocument() const;
-	BOOL IsImageOpened() const;
 
 // Operations
 public:
+	CPicapDoc* GetDocument() const;
+	BOOL IsImageOpened() const;
+	void UnselectRegion();
 
 // Overrides
 public:
@@ -55,6 +56,9 @@ protected:
 		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2) const;
 		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3) const;
 
+        // This returns the invalid region, include the text area
+        CRect GetInvalidRegion() const;
+
 	private:
 		BOOL m_isStarted;
 		BOOL m_isFinished;
@@ -69,14 +73,12 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-//	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 private:
 	CSelectedRegion m_selectedRegion;
 
 public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-	afx_msg void OnToolUnselect();
 };
 
 #ifndef _DEBUG  // debug version in PicapView.cpp
