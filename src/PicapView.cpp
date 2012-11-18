@@ -134,10 +134,7 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		int width = GetDocument()->GetImageWidth();
-		int height = GetDocument()->GetImageHeight();
-		BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
-		if (isWithinImage)
+		if (GetDocument()->IsWithinImage(point))
 		{
 			// Set moving
 			if (IsWithinRect(point, m_selectedRegion.GetRegion()))
@@ -175,10 +172,7 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		int width = GetDocument()->GetImageWidth();
-		int height = GetDocument()->GetImageHeight();
-		BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
-		if (isWithinImage)
+		if (GetDocument()->IsWithinImage(point))
 		{
 			CRect invalidRegion = m_selectedRegion.UpdateTrasitionRegion(point);
 	        if (!invalidRegion.IsRectEmpty())
@@ -254,6 +248,7 @@ void CPicapView::UnselectRegion()
 	pDoc->ResetROIRect();
 
 	m_selectedRegion.ResetRegion();
+	m_selectedRegion.SetIsMoving(FALSE);
 	// Update all the area
 	Invalidate();
 	UpdateWindow();
@@ -329,10 +324,22 @@ CRect CPicapView::CSelectedRegion::UpdateTrasitionRegion(CPoint point)
 	CRect oldRegion = GetInvalidRegion();
 	if (IsMoving())
 	{
-		m_startPoint += point - m_refPoint;
-		m_finishPoint += point - m_refPoint;
+#if 0
+		CPoint tmp = m_startPoint + point - m_refPoint;
+		if (GetDocument()->IsWithinImage(tmp))
+		{
+			tmp = m_finishPoint + point - m_refPoint;
+			if (GetDocument()->IsWithinImage(tmp))
+#endif
+			{
+				m_startPoint += point - m_refPoint;
+				m_finishPoint += point - m_refPoint;
 
-		m_refPoint = point;
+				m_refPoint = point;
+			}
+#if 0
+		}
+#endif
 	}
 	else
 	{
@@ -352,7 +359,12 @@ CRect CPicapView::CSelectedRegion::ResetRegion()
 	{
 		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
 	}
+
 	m_isStarted = m_isFinished = FALSE;
+	m_isMoving = FALSE;
+	m_startPoint.x = m_startPoint.y = 0;
+	m_finishPoint.x = m_finishPoint.y = 0;
+	m_refPoint.x = m_refPoint.y = 0;
 
 	return oldRegion;
 }

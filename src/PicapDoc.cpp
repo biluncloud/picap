@@ -31,6 +31,8 @@ END_MESSAGE_MAP()
 // CPicapDoc construction/destruction
 
 CPicapDoc::CPicapDoc()
+	: m_findHandle(NULL)
+	, m_currentFolder("")
 {
 	// TODO: add one-time construction code here
 
@@ -38,6 +40,10 @@ CPicapDoc::CPicapDoc()
 
 CPicapDoc::~CPicapDoc()
 {
+	if (m_findHandle)
+	{
+		FindClose(m_findHandle);
+	}
 }
 
 BOOL CPicapDoc::OnNewDocument()
@@ -50,9 +56,6 @@ BOOL CPicapDoc::OnNewDocument()
 
 	return TRUE;
 }
-
-
-
 
 // CPicapDoc serialization
 
@@ -83,6 +86,18 @@ void CPicapDoc::Dump(CDumpContext& dc) const
 }
 #endif //_DEBUG
 
+BOOL CPicapDoc::IsFolderChanged(CString newFolder) const
+{
+	if (m_currentFolder.IsEmpty() || m_currentFolder == newFolder)
+		return TRUE:
+
+	return FALSE;
+}
+
+CString CPicapDoc::GetFolderByPath(CString path) const
+{
+	return path.Left(path.ReverseFind(_T("\\")));
+}
 
 // CPicapDoc commands
 bool CPicapDoc::LoadImage(CString &file_path)
@@ -140,6 +155,15 @@ void CPicapDoc::ResetROIRect()
 	m_ROIRect.SetRectEmpty();
 }
 
+BOOL CPicapDoc::IsWithinImage(CPoint point)
+{
+	int width = GetImageWidth();
+	int height = GetImageHeight();
+	BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
+	return isWithinImage;
+}
+
+
 void CPicapDoc::OnFileSave()
 {
 	// TODO: Add your command handler code here
@@ -158,6 +182,15 @@ BOOL CPicapDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
 
+	CString folder = GetFolderByPath(CString(lpszPathName));
+	if (IsFolderChanged(folder))
+	{
+
+	}
+	else
+	{
+
+	}
 	// TODO:  Add your specialized creation code here
 	if (!LoadImage(CString(lpszPathName)))
 	{

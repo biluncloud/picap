@@ -25,6 +25,7 @@ public:
 	void ResetROIRect();
 	int GetImageWidth();
 	int GetImageHeight();
+	BOOL IsWithinImage(CPoint point);
 
 // Overrides
 public:
@@ -40,6 +41,8 @@ public:
 #endif
 
 protected:
+	CString GetFolderByPath(CString path) const;
+	BOOL IsFolderChanged(CString newFolder) const;
 
 // Generated message map functions
 protected:
@@ -51,6 +54,10 @@ private:
 private:
 	CvvImage m_image;
 	CRect m_ROIRect;
+
+	WIN32_FIND_DATA m_findData;
+	HANDLE m_findHandle;
+	CString m_currentFolder;
 public:
 	afx_msg void OnFileSave();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
