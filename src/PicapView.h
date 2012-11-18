@@ -37,20 +37,29 @@ protected:
 	class CSelectedRegion
 	{
 	public:
-		CSelectedRegion(CPicapView *currentView);
-		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2);
-		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3);
+		CSelectedRegion();
 
 		void DrawRegion(CDC* pDC);
+
+        // Both of the methods returns the old invalidate region
 		CRect UpdateRegion(CPoint point);
 		CRect UpdateTrasitionRegion(CPoint point);
+
+		CRect ResetRegion();
+
+        BOOL IsRegionOK() const;
+        // This only returns the selected region, exclude the text area
+        CRect GetRegion() const;
+
+    protected:
+		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2) const;
+		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3) const;
+
 	private:
 		BOOL m_isStarted;
 		BOOL m_isFinished;
 		CPoint m_startPoint;
 		CPoint m_finishPoint;
-
-		CPicapView *m_currentView;
 	};
 
 // Generated message map functions

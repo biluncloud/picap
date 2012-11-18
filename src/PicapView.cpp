@@ -7,6 +7,7 @@
 #include "PicapDoc.h"
 #include "PicapView.h"
 #include "MainFrm.h"
+#include "OptionsDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -135,30 +136,17 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		// The first point is already set, this time is the second point
-		if (m_isStarted && !m_isFinished)
-		{
-			m_isFinished = TRUE;
-			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
-			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
+        CRect invalidRegion = m_selectedRegion.UpdateRegion(point);
+        if (!invalidRegion.IsRectEmpty())
+        {
+            InvalidateRect(&invalidRegion);
+        }
 
+        if (m_selectedRegion.IsRegionOK())
+        {
 			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
-			pDoc->SetROIRect(ROIRect);
-			
-			InvalidateRect(&ROIRect);
-		}
-		else
-		{
-			m_isStarted = TRUE;
-			m_isFinished = FALSE;
-
-			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
-			InvalidateRect(&ROIRect);
-
-			m_startPoint = m_finishPoint = point;
-		}
+			pDoc->SetROIRect(m_selectedRegion.GetRegion());
+        }
 	}
 
 	CView::OnLButtonDown(nFlags, point);
@@ -169,17 +157,11 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		m_selectedRegion.UpdateTrasitionRegion(point);
-		InvalidateRect();
-		if (m_isStarted && !m_isFinished)
-		{
-			CPicapDoc* pDoc = GetDocument();
-			CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
-			InvalidateRect(&ROIRect);
-
-			CMainFrame* pFrame = (CMainFrame* )GetParentFrame();
-			m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
-		}
+		CRect invalidRegion = m_selectedRegion.UpdateTrasitionRegion(point);
+        if (!invalidRegion.IsRectEmpty())
+        {
+            InvalidateRect(&invalidRegion);
+        }
 	}
 
 	CView::OnMouseMove(nFlags, point);
@@ -195,53 +177,6 @@ void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 
 	CView::OnLButtonUp(nFlags, point);
 }
-
-//void CPicapView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-//{
-//	// TODO: Add your message handler code here and/or call default
-//
-//	switch (nChar)
-//	{
-//	case VK_ESCAPE: 
-//        // Process an escape. 
-//        
-//        break; 
-//
-//    case VK_RETURN: 
-//        // Process a carriage return. 
-//         
-//        break; 
-//
-//    case VK_LEFT: 
-//        break; 
-//
-//    case VK_RIGHT: 
-//        break; 
-//
-//    case VK_UP: 
-//        break; 
-//
-//    case VK_DOWN: 
-//        break; 
-//		
-//    case VK_PRIOR: 
-//        break; 
-//
-//    case VK_NEXT: 
-//        break; 
-//
-//    case VK_HOME: 
-//        break; 
-//
-//    case VK_END: 
-//        break; 
-//
-//	default:
-//		break;
-//	}
-// 
-//	CView::OnChar(nChar, nRepCnt, nFlags);
-//}
 
 BOOL CPicapView::IsImageOpened() const
 {
@@ -294,48 +229,19 @@ void CPicapView::OnToolUnselect()
 	CPicapDoc* pDoc = GetDocument();
 	pDoc->ResetROIRect();
 
-	if (m_isStarted && m_isFinished)
-	{
-		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
-		InvalidateRect(&ROIRect);
-	}
-
-	m_isStarted = m_isFinished = FALSE;
+	CRect invalidRegion = m_selectedRegion.ResetRegion();
+    if (!invalidRegion.IsRectEmpty())
+    {
+        InvalidateRect(&invalidRegion);
+    }
 }
 
-CPicapView::CSelectedRegion::CSelectedRegion(CPicapView *currentView)
+CPicapView::CSelectedRegion::CSelectedRegion()
 	: m_isStarted(FALSE)
 	, m_isFinished(FALSE)
 	, m_startPoint(0, 0)
 	, m_finishPoint(0, 0)
-	, m_currentView(currentView)
 {
-}
-
-// Calculate the bound rect of this two point
-CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2)
-{
-	CPoint topLeftPt, bottomRight;
-	topLeftPt.x = (pt1.x < pt2.x) ? pt1.x : pt2.x;
-	topLeftPt.y = (pt1.y < pt2.y) ? pt1.y : pt2.y;
-
-	bottomRight.x = (pt1.x >= pt2.x) ? pt1.x : pt2.x;
-	bottomRight.y = (pt1.y >= pt2.y) ? pt1.y : pt2.y;
-
-	return CRect(topLeftPt, bottomRight);
-}
-
-// Calculate the bound rect of this three point
-CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3)
-{
-	CPoint topLeftPt, bottomRight;
-	topLeftPt.x = MIN(MIN(pt1.x, pt2.x), pt3.x);
-	topLeftPt.y = MIN(MIN(pt1.y, pt2.y), pt3.y);
-
-	bottomRight.x = MAX(MAX(pt1.x, pt2.x), pt3.x);
-	bottomRight.y = MAX(MAX(pt1.y, pt2.y), pt3.y);
-
-	return CRect(topLeftPt, bottomRight);
 }
 
 void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
@@ -364,38 +270,30 @@ void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
 		pDC->SelectObject(pOldPen);
 		pDC->SelectObject(pOldBrush);
 	}
-
 }
 
 CRect CPicapView::CSelectedRegion::UpdateRegion(CPoint point)
 {
-	CRect oldRegion = {0};
-	// The first point is already set, this time is the second point
+	CRect oldRegion(0, 0, 0, 0);
+	// The first point is already set, this time the second point will be updated
 	if (m_isStarted && !m_isFinished)
 	{
+		// Calculate the invalidate region, including text
+		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
+
 		// Update the selected region
 		m_isFinished = TRUE;
-		CMainFrame* pFrame = (CMainFrame* )(m_currentView->GetParentFrame());
-		m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
-
-		// Set the render region, including text
-		CPicapDoc* pDoc = GetDocument();
-		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint);
-		pDoc->SetROIRect(ROIRect);
-		
-		InvalidateRect(&ROIRect);
-		return ROIRect;
+		m_finishPoint = COptionsDlg::GetInstance()->GetNextPosition(m_startPoint, point);
 	}
 	else
 	{
+		// Calculate the invalidate region, including text
+		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
+
+		// Update the selected region
 		m_isStarted = TRUE;
 		m_isFinished = FALSE;
-
-		CRect ROIRect = CalcBoundRect(m_startPoint, m_finishPoint, point);
-		InvalidateRect(&ROIRect);
-
 		m_startPoint = m_finishPoint = point;
-		return ROIRect;
 	}
 
 	return oldRegion;
@@ -403,14 +301,70 @@ CRect CPicapView::CSelectedRegion::UpdateRegion(CPoint point)
 
 CRect CPicapView::CSelectedRegion::UpdateTrasitionRegion(CPoint point)
 {
-	CRect oldRegion = {0};
+	CRect oldRegion(0, 0, 0, 0);
 	if (m_isStarted && !m_isFinished)
 	{
-		CMainFrame* pFrame = (CMainFrame* )(m_currentView->GetParentFrame());
-		m_finishPoint = pFrame->GetNextPosition(m_startPoint, point);
+		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
 
-		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint, point);
+		m_finishPoint = COptionsDlg::GetInstance()->GetNextPosition(m_startPoint, point);
 	}
 
 	return oldRegion;
 }
+
+CRect CPicapView::CSelectedRegion::ResetRegion()
+{
+	CRect oldRegion(0, 0, 0, 0);
+	if (m_isStarted && m_isFinished)
+	{
+		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
+	}
+	m_isStarted = m_isFinished = FALSE;
+
+	return oldRegion;
+}
+
+BOOL CPicapView::CSelectedRegion::IsRegionOK() const
+{
+	if (m_isStarted && !m_isFinished)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+// This only returns the selected region, exclude the text area
+CRect CPicapView::CSelectedRegion::GetRegion() const
+{
+    return CalcBoundRect(m_startPoint, m_finishPoint);
+}
+
+// Calculate the bound rect of this two point
+CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2) const
+{
+	CPoint topLeftPt, bottomRight;
+	topLeftPt.x = (pt1.x < pt2.x) ? pt1.x : pt2.x;
+	topLeftPt.y = (pt1.y < pt2.y) ? pt1.y : pt2.y;
+
+	bottomRight.x = (pt1.x >= pt2.x) ? pt1.x : pt2.x;
+	bottomRight.y = (pt1.y >= pt2.y) ? pt1.y : pt2.y;
+
+	return CRect(topLeftPt, bottomRight);
+}
+
+// Calculate the bound rect of this three point
+CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2, const CPoint &pt3) const
+{
+	CPoint topLeftPt, bottomRight;
+	topLeftPt.x = MIN(MIN(pt1.x, pt2.x), pt3.x);
+	topLeftPt.y = MIN(MIN(pt1.y, pt2.y), pt3.y);
+
+	bottomRight.x = MAX(MAX(pt1.x, pt2.x), pt3.x);
+	bottomRight.y = MAX(MAX(pt1.y, pt2.y), pt3.y);
+
+	return CRect(topLeftPt, bottomRight);
+}
+

@@ -6,6 +6,7 @@
 
 #include "PicapDoc.h"
 #include "strings.h"
+#include "OptionsDlg.h"
 
 #include <cxcore.h>
 #include <highgui.h>
@@ -164,6 +165,8 @@ BOOL CPicapDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		return FALSE;
 	}
 
+    COptionsDlg::GetInstance()->SetImageSize(GetImageWidth(), GetImageHeight());
+
 	return TRUE;
 }
 
@@ -187,3 +190,4 @@ int CPicapDoc::GetImageHeight()
 {
 	return (m_image.GetImage() == NULL) ? 0 : m_image.Height();
 }
+

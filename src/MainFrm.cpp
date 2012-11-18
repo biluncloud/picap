@@ -7,6 +7,7 @@
 #include "MainFrm.h"
 #include "PicapDoc.h"
 #include "strings.h"
+#include "OptionsDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -155,12 +156,3 @@ void CMainFrame::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CFrameWnd::OnChar(nChar, nRepCnt, nFlags);
 }
 
-CPoint CMainFrame::GetNextPosition(CPoint firstPt, CPoint currentPt)
-{
-	int width = ((CPicapDoc *)GetActiveDocument())->GetImageWidth();
-	int height = ((CPicapDoc *)GetActiveDocument())->GetImageHeight();
-	currentPt.x = currentPt.x < 0 ? 0 : (currentPt.x >= width ? width : currentPt.x);
-	currentPt.y = currentPt.y < 0 ? 0 : (currentPt.y >= height ? height : currentPt.y);
-
-	return COptionsDlg::GetInstance()->GetNextPosition(firstPt, currentPt);
-}

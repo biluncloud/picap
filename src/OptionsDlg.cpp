@@ -30,6 +30,8 @@ COptionsDlg::COptionsDlg(CWnd* pParent /*=NULL*/)
 	, m_maxHeight(g_defMaxHeight)
 	, m_stepWidth(g_defStepWidth)
 	, m_stepHeight(g_defStepHeight)
+    , m_imageWidth(0)
+    , m_imageHeight(0)
 {
 
 }
@@ -83,6 +85,10 @@ END_MESSAGE_MAP()
 
 CPoint COptionsDlg::GetNextPosition(CPoint firstPt, CPoint currentPt) const
 {
+    // First of all, reset the current point
+	currentPt.x = currentPt.x < 0 ? 0 : (currentPt.x >= m_imageWidth ? m_imageWidth : currentPt.x);
+	currentPt.y = currentPt.y < 0 ? 0 : (currentPt.y >= m_imageHeight ? m_imageHeight : currentPt.y);
+
 	CPoint candidatePt;
 	currentPt -= firstPt;
 
@@ -130,6 +136,28 @@ CPoint COptionsDlg::GetNextPosition(CPoint firstPt, CPoint currentPt) const
 
 	return candidatePt + firstPt;
 }
+
+void COptionsDlg::SetImageWidth(int width)
+{
+    m_imageWidth = width;
+}
+
+void COptionsDlg::SetImageHeight(int height)
+{
+    m_imageHeight = height;
+}
+
+void COptionsDlg::SetImageSize(int width, int height)
+{
+    m_imageWidth = width;
+    m_imageHeight = height;
+}
+
+void COptionsDlg::SetImageSize(CSize size)
+{
+    SetImageSize(size.cx, size.cy);
+}
+
 void COptionsDlg::OnBnClickedDefault()
 {
 	// TODO: Add your control notification handler code here
@@ -144,3 +172,4 @@ void COptionsDlg::OnBnClickedDefault()
 	
 	UpdateData(FALSE);
 }
+

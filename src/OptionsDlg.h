@@ -1,6 +1,6 @@
 #pragma once
 
-
+// It's a singleton
 // COptionsDlg dialog
 class COptionsDlg : public CDialog
 {
@@ -32,6 +32,12 @@ public:
 	// This method will give the position within all the restriction
 	// The nearest position to the current point will be given
 	CPoint GetNextPosition(CPoint firstPt, CPoint currentPt) const;
+
+    void SetImageWidth(int width);
+    void SetImageHeight(int height);
+    void SetImageSize(int width, int height);
+    void SetImageSize(CSize size);
+
 	afx_msg void OnBnClickedDefault();
 
 private:
@@ -44,4 +50,9 @@ private:
     // The copy constructor and assign operator are forbidden
     COptionsDlg(COptionsDlg &rhs);
     COptionsDlg &operator = (COptionsDlg &rhs);
+
+    // Attributes
+private:
+    int m_imageWidth;
+    int m_imageHeight;
 };
