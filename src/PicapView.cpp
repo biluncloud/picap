@@ -139,17 +139,30 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 		BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
 		if (isWithinImage)
 		{
-	        CRect invalidRegion = m_selectedRegion.UpdateRegion(point);
-	        if (!invalidRegion.IsRectEmpty())
-	        {
-	            InvalidateRect(&invalidRegion);
-	        }
+			// Set moving
+			if (IsWithinRect(point, m_selectedRegion.GetRegion()))
+			{
+		        // If it is moving
+				if (m_selectedRegion.IsRegionOK())
+		        {
+					m_selectedRegion.SetIsMoving(TRUE);
+					m_selectedRegion.SetRefPoint(point);
+		        }
+			}
+			else
+			{
+		        CRect invalidRegion = m_selectedRegion.UpdateRegion(point);
+		        if (!invalidRegion.IsRectEmpty())
+		        {
+		            InvalidateRect(&invalidRegion);
+		        }
 
-	        if (m_selectedRegion.IsRegionOK())
-	        {
-				CPicapDoc* pDoc = GetDocument();
-				pDoc->SetROIRect(m_selectedRegion.GetRegion());
-	        }
+		        if (m_selectedRegion.IsRegionOK())
+		        {
+					CPicapDoc* pDoc = GetDocument();
+					pDoc->SetROIRect(m_selectedRegion.GetRegion());
+		        }
+			}
 		}
 
 	}
@@ -183,7 +196,7 @@ void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		return;
+		m_selectedRegion.SetIsMoving(FALSE);
 	}
 
 	CView::OnLButtonUp(nFlags, point);
@@ -246,11 +259,19 @@ void CPicapView::UnselectRegion()
 	UpdateWindow();
 }
 
+BOOL CPicapView::IsWithinRect(const CPoint &pt, const CRect &rect) const
+{
+	BOOL isWithinRect = pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom;
+	return isWithinRect;
+}
+
 CPicapView::CSelectedRegion::CSelectedRegion()
 	: m_isStarted(FALSE)
 	, m_isFinished(FALSE)
+	, m_isMoving(FALSE)
 	, m_startPoint(0, 0)
 	, m_finishPoint(0, 0)
+	, m_refPoint(0, 0)
 {
 }
 
@@ -292,25 +313,33 @@ CRect CPicapView::CSelectedRegion::UpdateRegion(CPoint point)
 		m_isFinished = TRUE;
 		m_finishPoint = COptionsDlg::GetInstance()->GetNextPosition(m_startPoint, point);
 	}
-	else
-	{
+    else
+    {
 		// Update the selected region
-		m_isStarted = TRUE;
-		m_isFinished = FALSE;
-		m_startPoint = m_finishPoint = point;
-	}
+        m_isStarted = TRUE;
+        m_isFinished = FALSE;
+        m_startPoint = m_finishPoint = point;
+    }
 
 	return oldRegion;
 }
 
 CRect CPicapView::CSelectedRegion::UpdateTrasitionRegion(CPoint point)
 {
-	CRect oldRegion(0, 0, 0, 0);
-	if (m_isStarted && !m_isFinished)
+	CRect oldRegion = GetInvalidRegion();
+	if (IsMoving())
 	{
-		oldRegion = CalcBoundRect(m_startPoint, m_finishPoint);
+		m_startPoint += point - m_refPoint;
+		m_finishPoint += point - m_refPoint;
 
-		m_finishPoint = COptionsDlg::GetInstance()->GetNextPosition(m_startPoint, point);
+		m_refPoint = point;
+	}
+	else
+	{
+		if (m_isStarted && !m_isFinished)
+		{
+			m_finishPoint = COptionsDlg::GetInstance()->GetNextPosition(m_startPoint, point);
+		}
 	}
 
 	return oldRegion;
@@ -346,6 +375,11 @@ CRect CPicapView::CSelectedRegion::GetRegion() const
     return CalcBoundRect(m_startPoint, m_finishPoint);
 }
 
+void CPicapView::CSelectedRegion::SetRefPoint(const CPoint &point)
+{
+	m_refPoint = point;
+}
+
 // Calculate the bound rect of this two point
 CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint &pt2) const
 {
@@ -372,8 +406,29 @@ CRect CPicapView::CSelectedRegion::CalcBoundRect(const CPoint &pt1, const CPoint
 	return CRect(topLeftPt, bottomRight);
 }
 
+BOOL CPicapView::CSelectedRegion::IsMoving() const
+{
+	return m_isMoving;
+}
+
+void CPicapView::CSelectedRegion::SetIsMoving(BOOL isMoving)
+{
+	m_isMoving = isMoving;
+}
+
 // This returns the invalid region, include the text area
 CRect CPicapView::CSelectedRegion::GetInvalidRegion() const
 {
-	return CalcBoundRect(m_startPoint, m_finishPoint);
+	CRect rect = CalcBoundRect(m_startPoint, m_finishPoint);
+	rect = ExpandRegion(rect, 2);
+	return rect;
+}
+
+CRect CPicapView::CSelectedRegion::ExpandRegion(CRect rect, int width) const
+{
+	rect.top -= width;
+	rect.left -= width;
+	rect.bottom += width;
+	rect.right += width;
+	return rect;
 }

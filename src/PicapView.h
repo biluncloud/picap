@@ -19,6 +19,7 @@ public:
 	CPicapDoc* GetDocument() const;
 	BOOL IsImageOpened() const;
 	void UnselectRegion();
+	BOOL IsWithinRect(const CPoint &pt, const CRect &rect) const;
 
 // Overrides
 public:
@@ -49,8 +50,12 @@ protected:
 		CRect ResetRegion();
 
         BOOL IsRegionOK() const;
+		BOOL IsMoving() const;
+		void SetIsMoving(BOOL isMoving);
         // This only returns the selected region, exclude the text area
         CRect GetRegion() const;
+
+		void SetRefPoint(const CPoint &point);
 
     protected:
 		CRect CalcBoundRect(const CPoint &pt1, const CPoint &pt2) const;
@@ -58,12 +63,15 @@ protected:
 
         // This returns the invalid region, include the text area
         CRect GetInvalidRegion() const;
+		CRect ExpandRegion(CRect rect, int width) const;
 
 	private:
 		BOOL m_isStarted;
 		BOOL m_isFinished;
+		BOOL m_isMoving;
 		CPoint m_startPoint;
 		CPoint m_finishPoint;
+		CPoint m_refPoint;
 	};
 
 // Generated message map functions
