@@ -5,6 +5,7 @@
 #pragma once
 
 #include <highgui.h>
+#include <list>
 
 class CPicapDoc : public CDocument
 {
@@ -27,6 +28,9 @@ public:
 	int GetImageHeight();
 	BOOL IsWithinImage(CPoint point);
 
+	BOOL OpenNextImage();
+	BOOL OpenPreviousImage();
+
 // Overrides
 public:
 	virtual BOOL OnNewDocument();
@@ -41,8 +45,13 @@ public:
 #endif
 
 protected:
+	BOOL UpdateFileList(CString path);
 	CString GetFolderByPath(CString path) const;
+	CString GetFileNameByPath(CString path) const;
 	BOOL IsFolderChanged(CString newFolder) const;
+	BOOL BuildFileList(CString newFolder);
+	BOOL UpdateFileIterator(CString path);
+	BOOL IsImageFormat(CString fileName);
 
 // Generated message map functions
 protected:
@@ -58,6 +67,9 @@ private:
 	WIN32_FIND_DATA m_findData;
 	HANDLE m_findHandle;
 	CString m_currentFolder;
+	std::list<CString> m_fileList;
+	std::list<CString>::iterator m_fileIter;
+	std::list<CString>::reverse_iterator m_fileReverseIter;
 public:
 	afx_msg void OnFileSave();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);

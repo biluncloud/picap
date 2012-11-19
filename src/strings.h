@@ -3,3 +3,7 @@
 #define SAVE_IMAGE_NOT_READY_STR	_T("Failed save image, the image is not ready")
 #define FILE_FILTER_STR				_T("JPG Files(*.jpg;*.jpeg)|*jpg;*jpeg|Bitmap Files(*.bmp)|*.bmp|All Files(*.*)|*.*||")
 #define DEFAULT_SAVE_EXT_STR		_T("jpg")
+#define INVALID_FILE_HANDLE_STR     _T("Invalid File Handle: ")
+#define UPDATE_FILE_LIST_FAILED_STR	_T("Failed to update the file list")
+#define LAST_FILE_STR				_T("Already the last file")
+#define FIRST_FILE_STR				_T("Already the first file")

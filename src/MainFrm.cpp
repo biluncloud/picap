@@ -132,14 +132,15 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 	    case VK_RETURN: 
 	        // Process a carriage return. 
-			//pDoc->OnFileSave();
-	AfxGetApp()->OpenDocumentFile(_T("C:\\Documents and Settings\\Administrator\\×ÀÃæ\\ÉêÍ¬Ñ§\\2.jpg"));
+			pDoc->OnFileSave();
 	        break; 
 
 	    case VK_LEFT: 
+			pDoc->OpenPreviousImage();
 	        break; 
 
 	    case VK_RIGHT: 
+			pDoc->OpenNextImage();
 	        break; 
 
 	    case VK_UP: 

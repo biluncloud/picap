@@ -14,6 +14,9 @@
 // For wchar_t *
 #include <atlconv.h>
 
+// for find method
+#include <algorithm>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -86,17 +89,131 @@ void CPicapDoc::Dump(CDumpContext& dc) const
 }
 #endif //_DEBUG
 
-BOOL CPicapDoc::IsFolderChanged(CString newFolder) const
+BOOL CPicapDoc::UpdateFileList(CString path)
 {
-	if (m_currentFolder.IsEmpty() || m_currentFolder == newFolder)
-		return TRUE:
+	// if the folder is changed, the file list needs to be updated
+	CString folder = GetFolderByPath(path);
+	if (IsFolderChanged(folder))
+	{
+		m_currentFolder = folder;
+		if (!BuildFileList(folder))
+		{
+			return FALSE;
+		}
+		// file iterator needs to be updated
+		if (!UpdateFileIterator(path))
+		{
+			return FALSE;
+		}
+	}
 
-	return FALSE;
+	return TRUE;
 }
 
 CString CPicapDoc::GetFolderByPath(CString path) const
 {
-	return path.Left(path.ReverseFind(_T("\\")));
+	return path.Left(path.ReverseFind(_T('\\')));
+}
+
+CString CPicapDoc::GetFileNameByPath(CString path) const
+{
+	return path.Right(path.GetLength() - path.ReverseFind(_T('\\')) - 1);
+}
+
+BOOL CPicapDoc::IsFolderChanged(CString newFolder) const
+{
+	if (m_currentFolder.IsEmpty() || m_currentFolder != newFolder)
+		return TRUE;
+
+	return FALSE;
+}
+
+BOOL CPicapDoc::BuildFileList(CString newFolder)
+{
+	if (m_findHandle)
+	{
+		FindClose(m_findHandle);
+		m_findHandle = NULL;
+	}
+
+	newFolder += _T("\\*");
+	m_findHandle = FindFirstFile(newFolder, &m_findData);
+	if (m_findHandle == INVALID_HANDLE_VALUE) 
+	{
+		CString errorStr = INVALID_FILE_HANDLE_STR;
+		errorStr.Format(_T("%s GetLastError reports %d"), INVALID_FILE_HANDLE_STR, GetLastError());
+		return FALSE;
+	} 
+	else 
+	{
+		m_fileList.clear();
+		if (IsImageFormat(m_findData.cFileName))
+		{
+			m_fileList.push_back(m_findData.cFileName);
+		}
+		while (FindNextFile(m_findHandle, &m_findData) != 0)
+		{
+			if (IsImageFormat(m_findData.cFileName))
+			{
+				m_fileList.push_back(m_findData.cFileName);
+			}
+		}
+
+		FindClose(m_findHandle);
+		m_findHandle = NULL;
+	}
+
+	return TRUE;
+}
+
+BOOL CPicapDoc::UpdateFileIterator(CString path)
+{
+	if (m_fileList.empty() || path.IsEmpty())
+	{
+		return FALSE;
+	}
+
+	CString fileName = GetFileNameByPath(path);
+	m_fileIter = std::find(m_fileList.begin(), m_fileList.end(), fileName);
+	if (m_fileIter == m_fileList.end())
+	{
+		return FALSE;
+	}
+
+	m_fileReverseIter = std::find(m_fileList.rbegin(), m_fileList.rend(), fileName);
+	if (m_fileReverseIter == m_fileList.rend())
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL CPicapDoc::IsImageFormat(CString fileName)
+{
+	int index = fileName.ReverseFind(_T('.'));
+	if (-1 == index)
+	{
+		return FALSE;
+	}
+
+	CString ext = fileName.Right(fileName.GetLength() - index - 1);
+	CString imgFormat[4] = {
+		_T("bmp"),
+		_T("jpg"),
+		_T("png"),
+		_T("gif")
+	};
+	BOOL isFind = FALSE;
+	for (int i = 0; i < 4; i++)
+	{
+		if (ext == imgFormat[i])
+		{
+			isFind = TRUE;
+		}
+	}
+
+	return isFind;
 }
 
 // CPicapDoc commands
@@ -163,6 +280,41 @@ BOOL CPicapDoc::IsWithinImage(CPoint point)
 	return isWithinImage;
 }
 
+BOOL CPicapDoc::OpenNextImage()
+{
+	if (m_fileList.empty())
+	{
+		return TRUE;
+	}
+
+	if (++m_fileIter == m_fileList.end())
+	{
+		--m_fileIter;
+		AfxMessageBox(LAST_FILE_STR);
+		return FALSE;
+	}
+
+	AfxGetApp()->OpenDocumentFile(*m_fileIter);
+	return TRUE;
+}
+
+BOOL CPicapDoc::OpenPreviousImage()
+{
+	if (m_fileList.empty())
+	{
+		return TRUE;
+	}
+
+	if (++m_fileReverseIter == m_fileList.rend())
+	{
+		--m_fileReverseIter;
+		AfxMessageBox(FIRST_FILE_STR);
+		return FALSE;
+	}
+
+	AfxGetApp()->OpenDocumentFile(*m_fileReverseIter);
+	return TRUE;
+}
 
 void CPicapDoc::OnFileSave()
 {
@@ -182,15 +334,12 @@ BOOL CPicapDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
 
-	CString folder = GetFolderByPath(CString(lpszPathName));
-	if (IsFolderChanged(folder))
+	if (!UpdateFileList(CString(lpszPathName)))
 	{
-
+		AfxMessageBox(UPDATE_FILE_LIST_FAILED_STR);
+		return FALSE;
 	}
-	else
-	{
 
-	}
 	// TODO:  Add your specialized creation code here
 	if (!LoadImage(CString(lpszPathName)))
 	{
