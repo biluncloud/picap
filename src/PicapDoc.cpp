@@ -180,12 +180,6 @@ BOOL CPicapDoc::UpdateFileIterator(CString path)
 		return FALSE;
 	}
 
-	m_fileReverseIter = std::find(m_fileList.rbegin(), m_fileList.rend(), fileName);
-	if (m_fileReverseIter == m_fileList.rend())
-	{
-		return FALSE;
-	}
-
 	return TRUE;
 }
 
@@ -294,7 +288,7 @@ BOOL CPicapDoc::OpenNextImage()
 		return FALSE;
 	}
 
-	AfxGetApp()->OpenDocumentFile(*m_fileIter);
+	AfxGetApp()->OpenDocumentFile(m_currentFolder + _T("\\") + *m_fileIter);
 	return TRUE;
 }
 
@@ -305,14 +299,13 @@ BOOL CPicapDoc::OpenPreviousImage()
 		return TRUE;
 	}
 
-	if (++m_fileReverseIter == m_fileList.rend())
+	if (m_fileIter == m_fileList.begin())
 	{
-		--m_fileReverseIter;
-		AfxMessageBox(FIRST_FILE_STR);
+		AfxMessageBox(LAST_FILE_STR);
 		return FALSE;
 	}
 
-	AfxGetApp()->OpenDocumentFile(*m_fileReverseIter);
+	AfxGetApp()->OpenDocumentFile(m_currentFolder + _T("\\") + *(--m_fileIter));
 	return TRUE;
 }
 

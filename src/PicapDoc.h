@@ -69,7 +69,6 @@ private:
 	CString m_currentFolder;
 	std::list<CString> m_fileList;
 	std::list<CString>::iterator m_fileIter;
-	std::list<CString>::reverse_iterator m_fileReverseIter;
 public:
 	afx_msg void OnFileSave();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
