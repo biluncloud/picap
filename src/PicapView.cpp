@@ -190,7 +190,16 @@ void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if (IsImageOpened())
 	{
-		m_selectedRegion.SetIsMoving(FALSE);
+		if (m_selectedRegion.IsMoving())
+		{
+	        if (m_selectedRegion.IsRegionOK())
+	        {
+				CPicapDoc* pDoc = GetDocument();
+				pDoc->SetROIRect(m_selectedRegion.GetRegion());
+	        }
+
+			m_selectedRegion.SetIsMoving(FALSE);
+		}
 	}
 
 	CView::OnLButtonUp(nFlags, point);
@@ -384,7 +393,14 @@ BOOL CPicapView::CSelectedRegion::IsRegionOK() const
 // This only returns the selected region, exclude the text area
 CRect CPicapView::CSelectedRegion::GetRegion() const
 {
-    return CalcBoundRect(m_startPoint, m_finishPoint);
+	if (IsRegionOK())
+	{
+	    return CalcBoundRect(m_startPoint, m_finishPoint);
+	}
+	else
+	{
+		return CRect(0, 0, 0, 0);
+	}
 }
 
 void CPicapView::CSelectedRegion::SetRefPoint(const CPoint &point)
