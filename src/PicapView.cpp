@@ -144,6 +144,8 @@ void CPicapView::OnLButtonDown(UINT nFlags, CPoint point)
 		        {
 					m_selectedRegion.SetIsMoving(TRUE);
 					m_selectedRegion.SetRefPoint(point);
+
+					((CPicapApp *)AfxGetApp())->SetDragCursor();
 		        }
 			}
 			else
@@ -179,6 +181,11 @@ void CPicapView::OnMouseMove(UINT nFlags, CPoint point)
 	        {
 	            InvalidateRect(&invalidRegion);
 	        }
+
+			if (m_selectedRegion.IsMoving())
+			{
+				((CPicapApp *)AfxGetApp())->SetDragCursor();
+			}
 		}
 	}
 
@@ -197,8 +204,9 @@ void CPicapView::OnLButtonUp(UINT nFlags, CPoint point)
 				CPicapDoc* pDoc = GetDocument();
 				pDoc->SetROIRect(m_selectedRegion.GetRegion());
 	        }
-
 			m_selectedRegion.SetIsMoving(FALSE);
+
+			((CPicapApp *)AfxGetApp())->RestoreCursor();
 		}
 	}
 
@@ -294,6 +302,9 @@ void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
 		pDC->Rectangle(CalcBoundRect(m_startPoint, m_finishPoint));
 
 		// Draw the width and height
+		COLORREF oldColor = pDC->SetTextColor(RGB(0, 0, 255));
+		int oldBkMode = pDC->SetBkMode(TRANSPARENT);
+
 		CString textStr;
 		textStr.Format(_T("%dx%d"), 
 			abs(m_finishPoint.x - m_startPoint.x), 
@@ -301,6 +312,9 @@ void CPicapView::CSelectedRegion::DrawRegion(CDC* pDC)
 		pDC->DrawText(textStr, 
 			CalcBoundRect(m_startPoint, m_finishPoint),
 			DT_CENTER | DT_VCENTER);
+
+		pDC->SetBkMode(oldBkMode);
+		pDC->SetTextColor(oldColor);
 
 		pDC->SelectObject(pOldPen);
 		pDC->SelectObject(pOldBrush);

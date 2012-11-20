@@ -22,10 +22,16 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
+	BOOL SetDragCursor();
+	BOOL RestoreCursor();
 
 // Implementation
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+
+private:
+	HCURSOR m_normalCursor;
+	HCURSOR m_dragCursor;
 };
 
 extern CPicapApp theApp;

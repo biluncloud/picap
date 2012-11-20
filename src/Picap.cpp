@@ -84,9 +84,32 @@ BOOL CPicapApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
+
+	m_dragCursor = LoadStandardCursor(IDC_SIZEALL);
+
 	return TRUE;
 }
 
+BOOL CPicapApp::SetDragCursor()
+{
+	HCURSOR oldCurror = ::SetCursor(m_dragCursor);
+	if (NULL == m_normalCursor)
+	{
+		m_normalCursor = oldCurror;
+	}
+
+	return TRUE;
+}
+
+BOOL CPicapApp::RestoreCursor()
+{
+	if (NULL != m_normalCursor)
+	{
+		::SetCursor(m_normalCursor);
+	}
+
+	return TRUE;
+}
 
 
 // CAboutDlg dialog used for App About

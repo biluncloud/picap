@@ -8,10 +8,10 @@
 // default settings
 const int g_defWidthFactor = 1;
 const int g_defHeigthFactor = 2;
-const int g_defMinWidth = 40;
-const int g_defMaxWidth = 95;
-const int g_defMinHeight = 80;
-const int g_defMaxHeight = 190;
+const int g_defMinWidth = 50;
+const int g_defMaxWidth = 130;
+const int g_defMinHeight = 100;
+const int g_defMaxHeight = 260;
 const int g_defStepWidth = 5;
 const int g_defStepHeight = 10;
 
