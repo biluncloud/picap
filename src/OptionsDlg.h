@@ -38,6 +38,8 @@ public:
     void SetImageSize(int width, int height);
     void SetImageSize(CSize size);
 
+	BOOL IsPositionAvailable(CPoint point) const;
+
 	afx_msg void OnBnClickedDefault();
 
 private:

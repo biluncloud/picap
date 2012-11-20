@@ -158,6 +158,12 @@ void COptionsDlg::SetImageSize(CSize size)
     SetImageSize(size.cx, size.cy);
 }
 
+BOOL COptionsDlg::IsPositionAvailable(CPoint point) const
+{
+	BOOL isWithinImage = !(point.x < 0 || point.x >= m_imageWidth || point.y < 0 || point.y >= m_imageHeight);
+	return isWithinImage;
+}
+
 void COptionsDlg::OnBnClickedDefault()
 {
 	// TODO: Add your control notification handler code here

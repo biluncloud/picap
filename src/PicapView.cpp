@@ -333,22 +333,13 @@ CRect CPicapView::CSelectedRegion::UpdateTrasitionRegion(CPoint point)
 	CRect oldRegion = GetInvalidRegion();
 	if (IsMoving())
 	{
-#if 0
-		CPoint tmp = m_startPoint + point - m_refPoint;
-		if (GetDocument()->IsWithinImage(tmp))
+		if (IsTargetRegionAvailable(point))
 		{
-			tmp = m_finishPoint + point - m_refPoint;
-			if (GetDocument()->IsWithinImage(tmp))
-#endif
-			{
-				m_startPoint += point - m_refPoint;
-				m_finishPoint += point - m_refPoint;
+			m_startPoint += point - m_refPoint;
+			m_finishPoint += point - m_refPoint;
 
-				m_refPoint = point;
-			}
-#if 0
+			m_refPoint = point;
 		}
-#endif
 	}
 	else
 	{
@@ -459,4 +450,18 @@ CRect CPicapView::CSelectedRegion::ExpandRegion(CRect rect, int width) const
 	rect.bottom += width;
 	rect.right += width;
 	return rect;
+}
+
+BOOL CPicapView::CSelectedRegion::IsTargetRegionAvailable(CPoint point)
+{
+	CPoint offset = point - m_refPoint;
+	if (COptionsDlg::GetInstance()->IsPositionAvailable((m_startPoint + offset)))
+	{
+		if (COptionsDlg::GetInstance()->IsPositionAvailable((m_finishPoint + offset)))
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }

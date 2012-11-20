@@ -65,6 +65,8 @@ protected:
         CRect GetInvalidRegion() const;
 		CRect ExpandRegion(CRect rect, int width) const;
 
+		BOOL IsTargetRegionAvailable(CPoint point);
+
 	private:
 		BOOL m_isStarted;
 		BOOL m_isFinished;

@@ -268,10 +268,7 @@ void CPicapDoc::ResetROIRect()
 
 BOOL CPicapDoc::IsWithinImage(CPoint point)
 {
-	int width = GetImageWidth();
-	int height = GetImageHeight();
-	BOOL isWithinImage = !(point.x < 0 || point.x >= width || point.y < 0 || point.y >= height);
-	return isWithinImage;
+	return COptionsDlg::GetInstance()->IsPositionAvailable(point);
 }
 
 BOOL CPicapDoc::OpenNextImage()
